@@ -1,4 +1,4 @@
-⚜ POLYCIAL — The Political Property Game
+⚜ POLYCIAL - The Political Property Game
 "Acquire land, wield power, dominate the nation."
 
 Polycial is a fully featured, browser-based property trading board game inspired by Monopoly, reimagined through the lens of political power. Buy districts, build influence, negotiate deals, and bankrupt your rivals  all in a single self-contained HTML file with zero dependencies.
