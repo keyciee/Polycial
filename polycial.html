@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POLYCIAL v4 — The Political Property Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ── DESIGN SYSTEM (from index.html / team.html) ── */
+:root {
+  --ink: #0d0e12;
+  --ink-2: #1e2028;
+  --ink-3: #2e3040;
+  --mid: #6b7280;
+  --sub: #9ca3af;
+  --border: #e5e7eb;
+  --border-2: #f3f4f6;
+  --surface: #ffffff;
+  --surface-2: #f9fafb;
+  --surface-3: #f3f4f6;
+  --accent: #1d4ed8;
+  --accent-2: #3b82f6;
+  --accent-light: #eff6ff;
+  --accent-border: #bfdbfe;
+  --green: #059669;
+  --green-light: #ecfdf5;
+  --amber: #d97706;
+  --amber-light: #fffbeb;
+  --red: #dc2626;
+  /* Game-specific mappings */
+  --gold: #1d4ed8;
+  --gold-l: #3b82f6;
+  --dark: #0d0e12;
+  --cream: #0d0e12;
+  --panel: rgba(255,255,255,0.98);
+  --border-game: #e5e7eb;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body { width: 100%; min-height: 100%; background: var(--surface-2); }
+body {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+.screen{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:20px;background:var(--surface-2);}
+.screen.hidden{display:none!important;}
+/* ── START SCREEN ── */
+#startScreen{
+  background:
+    radial-gradient(circle 600px at 20% 50%, rgba(29,78,216,0.05) 0%, transparent 70%),
+    radial-gradient(circle 400px at 80% 30%, rgba(16,185,129,0.03) 0%, transparent 70%),
+    var(--surface);
+  flex-direction:column;
+}
+.start-inner{display:flex;flex-direction:column;align-items:center;gap:16px;max-width:520px;width:100%;padding:32px 0;}
+.crest{
+  width:72px;height:72px;
+  background:var(--ink);
+  border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;
+  box-shadow:0 8px 32px rgba(13,14,18,0.15);
+  animation:crestGlow 4s ease-in-out infinite;
+}
+@keyframes crestGlow{
+  0%,100%{box-shadow:0 8px 32px rgba(13,14,18,0.12);}
+  50%{box-shadow:0 8px 48px rgba(29,78,216,0.25);}
+}
+.game-title{
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(3rem,12vw,5.5rem);
+  font-weight:400;color:var(--ink);
+  letter-spacing:-0.02em;line-height:0.95;
+  text-align:center;
+}
+.game-tagline{
+  font-family:'Space Mono',monospace;
+  font-size:0.68rem;letter-spacing:0.08em;
+  color:var(--mid);text-align:center;
+}
+.divs{
+  height:1px;
+  background:linear-gradient(to right,transparent,var(--border),transparent);
+  width:100%;
+}
+.slbl{
+  font-family:'Space Mono',monospace;
+  font-size:0.65rem;font-weight:700;letter-spacing:0.12em;
+  color:var(--accent);text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;margin-bottom:8px;
+}
+.slbl::before{content:'';width:16px;height:2px;background:var(--accent);border-radius:1px;}
+.count-row{display:flex;gap:8px;justify-content:center;}
+.cnt-btn{
+  width:52px;height:52px;
+  background:var(--surface-3);
+  border:1px solid var(--border);
+  color:var(--mid);
+  font-family:'DM Serif Display',serif;
+  font-size:1.4rem;font-weight:400;
+  cursor:pointer;border-radius:10px;
+  transition:all 0.15s;
+}
+.cnt-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.cnt-btn.active{
+  background:var(--ink);
+  border-color:var(--ink);color:#fff;
+  box-shadow:0 4px 12px rgba(13,14,18,0.18);
+}
+.prow{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;margin-bottom:8px;
+  transition:opacity 0.3s,border-color 0.15s;
+}
+.prow:hover{border-color:var(--accent-border);}
+.prow.disabled{opacity:0.3;pointer-events:none;}
+.ptk{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;
+  border:2px solid rgba(255,255,255,0.4);flex-shrink:0;
+}
+.pni{
+  flex:1;background:transparent;border:none;
+  border-bottom:1px solid var(--border-2);
+  color:var(--ink);
+  font-family:'DM Sans',sans-serif;
+  font-size:0.88rem;letter-spacing:0.01em;
+  padding:2px 4px;outline:none;
+}
+.pni:focus{border-bottom-color:var(--accent);}
+.ai-tog{
+  font-family:'Space Mono',monospace;
+  font-size:0.6rem;letter-spacing:0.06em;
+  padding:4px 10px;
+  background:var(--surface-3);
+  border:1px solid var(--border);
+  color:var(--mid);
+  border-radius:6px;cursor:pointer;white-space:nowrap;
+  transition:all 0.15s;
+}
+.ai-tog:hover{border-color:var(--accent);color:var(--accent);}
+.ai-tog.ai{background:var(--green-light);border-color:#a7f3d0;color:var(--green);}
+.cta-row{display:flex;gap:10px;width:100%;justify-content:center;}
+.btn-start{
+  flex:1;padding:13px 20px;
+  background:var(--ink);
+  border:none;color:#fff;
+  font-family:'DM Sans',sans-serif;
+  font-size:0.88rem;font-weight:600;
+  letter-spacing:0.02em;cursor:pointer;
+  border-radius:10px;
+  transition:all 0.15s;
+  box-shadow:0 4px 16px rgba(13,14,18,0.18);
+}
+.btn-start:hover{background:var(--ink-2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(13,14,18,0.22);}
+.btn-ol{
+  padding:13px 18px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  color:var(--mid);
+  font-family:'DM Sans',sans-serif;
+  font-size:0.88rem;font-weight:500;
+  cursor:pointer;border-radius:10px;
+  transition:all 0.15s;
+}
+.btn-ol:hover{border-color:var(--ink);color:var(--ink);background:var(--surface-3);}
+.ver{
+  font-family:'Space Mono',monospace;
+  font-size:0.6rem;color:var(--sub);letter-spacing:0.12em;text-align:center;
+}
+.save-badge{
+  display:none;align-items:center;gap:8px;
+  padding:10px 16px;
+  background:var(--accent-light);
+  border:1px solid var(--accent-border);
+  border-radius:8px;
+  font-family:'Space Mono',monospace;
+  font-size:0.65rem;letter-spacing:0.04em;
+  color:var(--accent);cursor:pointer;
+  transition:all 0.15s;width:100%;justify-content:center;
+}
+.save-badge:hover{background:#dbeafe;}
+/* ── SETTINGS SCREEN ── */
+#settingsScreen{background:var(--surface-2);}
+.setp{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:28px;width:100%;max-width:520px;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(13,14,18,0.08);
+}
+.setp::-webkit-scrollbar{width:4px;}
+.setp::-webkit-scrollbar-thumb{background:var(--border);}
+.set-title{
+  font-family:'DM Serif Display',serif;
+  font-size:1.8rem;font-weight:400;
+  color:var(--ink);text-align:center;letter-spacing:-0.02em;margin-bottom:4px;
+}
+.sg{margin-top:20px;}
+.sglbl{
+  font-family:'Space Mono',monospace;
+  font-size:0.62rem;font-weight:700;letter-spacing:0.14em;
+  color:var(--accent);text-transform:uppercase;
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.sglbl::after{content:'';flex:1;height:1px;background:var(--accent-border);}
+.sr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--border-2);gap:12px;
+}
+.sr:last-child{border-bottom:none;}
+.sinfo{flex:1;}
+.sname{font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;color:var(--ink);}
+.sdesc{font-size:0.72rem;color:var(--sub);margin-top:1px;line-height:1.4;}
+/* Toggle */
+.tw{position:relative;width:40px;height:22px;flex-shrink:0;}
+.tw input{opacity:0;width:0;height:0;}
+.tsl{
+  position:absolute;inset:0;
+  background:var(--border);
+  border-radius:22px;cursor:pointer;transition:all 0.2s;
+}
+.tsl::before{
+  content:'';position:absolute;
+  width:16px;height:16px;border-radius:50%;
+  background:#fff;left:3px;top:3px;
+  transition:all 0.2s;
+  box-shadow:0 1px 4px rgba(0,0,0,0.15);
+}
+.tw input:checked+.tsl{background:var(--accent);}
+.tw input:checked+.tsl::before{transform:translateX(18px);}
+.ssel{
+  background:var(--surface-3);
+  border:1px solid var(--border);
+  color:var(--ink);
+  font-family:'DM Sans',sans-serif;
+  font-size:0.78rem;padding:5px 8px;
+  border-radius:6px;cursor:pointer;outline:none;
+}
+.ssel option{background:var(--surface);}
+.stepper{display:flex;align-items:center;gap:6px;}
+.sbtn{
+  width:26px;height:26px;
+  background:var(--surface-3);
+  border:1px solid var(--border);
+  color:var(--ink);font-size:0.9rem;
+  cursor:pointer;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.sbtn:hover{background:var(--accent-light);border-color:var(--accent-border);color:var(--accent);}
+.sval{
+  font-family:'Space Mono',monospace;
+  font-size:0.82rem;font-weight:700;
+  color:var(--ink);min-width:40px;text-align:center;
+}
+.set-back{
+  margin-top:16px;width:100%;padding:10px;
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--mid);
+  font-family:'DM Sans',sans-serif;
+  font-size:0.85rem;font-weight:500;
+  cursor:pointer;border-radius:8px;
+  transition:all 0.15s;
+}
+.set-back:hover{border-color:var(--ink);color:var(--ink);background:var(--surface-3);}
+/* ── GAME SCREEN ── */
+#gameScreen{
+  display:none;padding:0;flex-direction:column;align-items:center;
+  min-height:100vh;background:var(--surface-2);
+}
+.ghdr{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;max-width:1280px;
+  padding:12px 20px;gap:10px;
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:50;
+}
+.glogo{
+  font-family:'Space Mono',monospace;
+  font-size:0.9rem;font-weight:700;
+  color:var(--ink);letter-spacing:0.1em;
+  display:flex;align-items:center;gap:8px;
+}
+.glogo-mark{
+  width:28px;height:28px;background:var(--ink);color:#fff;
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-size:0.75rem;flex-shrink:0;
+}
+.hbtns{display:flex;gap:6px;}
+.hbtn{
+  padding:6px 12px;
+  background:var(--surface-3);
+  border:1px solid var(--border);
+  color:var(--mid);
+  font-family:'Space Mono',monospace;
+  font-size:0.62rem;letter-spacing:0.06em;
+  cursor:pointer;border-radius:6px;
+  transition:all 0.15s;white-space:nowrap;
+}
+.hbtn:hover{background:var(--ink);border-color:var(--ink);color:#fff;}
+.main-layout{
+  display:flex;gap:12px;align-items:flex-start;
+  width:100%;max-width:1280px;
+  padding:16px;
+  flex-wrap:wrap;
+}
+/* ── BOARD ── */
+#board{
+  display:grid;
+  grid-template-columns:repeat(11,60px);
+  grid-template-rows:repeat(11,60px);
+  border:2px solid var(--border);
+  background:#d4f0e0;
+  box-shadow:0 8px 32px rgba(13,14,18,0.1);
+  border-radius:4px;
+  flex-shrink:0;position:relative;
+}
+@media(max-width:900px){
+  #board{
+    grid-template-columns:repeat(11,52px);
+    grid-template-rows:repeat(11,52px);
+  }
+}
+@media(max-width:700px){
+  #board{
+    grid-template-columns:repeat(11,40px);
+    grid-template-rows:repeat(11,40px);
+  }
+}
+@media(max-width:520px){
+  #board{
+    grid-template-columns:repeat(11,30px);
+    grid-template-rows:repeat(11,30px);
+  }
+}
+.bc{
+  grid-column:2/11;grid-row:2/11;
+  background:#d4f0e0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:1px solid rgba(29,78,216,0.1);
+  position:relative;overflow:hidden;
+}
+.cbg{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(29,78,216,0.03),transparent 70%);pointer-events:none;}
+.ctitle{
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(1rem,3vw,2rem);font-weight:400;
+  color:var(--ink);letter-spacing:-0.02em;line-height:1;
+}
+.csub{
+  font-family:'Space Mono',monospace;
+  font-size:0.5rem;color:var(--mid);letter-spacing:0.15em;margin-top:4px;
+  text-align:center;
+}
+.cico{font-size:1.5rem;margin:4px 0;}
+.btr{
+  position:absolute;bottom:10px;right:10px;
+  width:32px;height:32px;border-radius:50%;
+  border:2px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.9rem;
+  background:var(--accent-light);
+  animation:rp 2s ease-in-out infinite;
+}
+@keyframes rp{0%,100%{box-shadow:0 0 8px rgba(29,78,216,0.15);}50%{box-shadow:0 0 20px rgba(29,78,216,0.35);}}
+.cell{
+  border:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;position:relative;
+  background:#f0fdf4;
+  transition:filter 0.15s,background 0.15s;
+  overflow:hidden;user-select:none;
+}
+.cell:hover{filter:brightness(0.95);z-index:2;background:#e0f7e8;}
+.cell .cbar{position:absolute;top:0;left:0;right:0;height:9px;}
+.cell .cn{
+  font-family:'Space Mono',monospace;
+  font-size:0.38rem;text-align:center;
+  color:var(--ink);line-height:1.2;padding:0 2px;margin-top:10px;
+}
+.cell .cp{font-size:0.36rem;color:var(--mid);font-weight:700;margin-top:1px;font-family:'Space Mono',monospace;}
+.cell .ci{font-size:0.9rem;line-height:1;}
+.cell.corner{background:#e0f7e8;}
+.cell.corner .ci{font-size:1.1rem;}
+.cell.corner .cn{font-size:0.42rem;font-weight:700;margin-top:2px;}
+.ha{position:absolute;top:9px;left:0;right:0;text-align:center;}
+.house{display:inline-block;width:5px;height:4px;background:var(--green);border-radius:1px;margin:0 0.4px;vertical-align:bottom;}
+.hotel{display:inline-block;width:7px;height:5px;background:var(--red);border-radius:1px;margin:0 0.4px;vertical-align:bottom;}
+.ta{position:absolute;bottom:1px;left:0;right:0;display:flex;justify-content:center;flex-wrap:wrap;gap:1px;}
+.odot{position:absolute;bottom:10px;right:2px;width:5px;height:5px;border-radius:50%;border:1px solid white;}
+.mov{position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(220,38,38,.06) 0,rgba(220,38,38,.06) 2px,transparent 2px,transparent 8px);pointer-events:none;}
+.mtxt{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:0.28rem;color:var(--red);font-family:'Space Mono',monospace;}
+/* Token sprite */
+.tsprite{
+  position:absolute;width:14px;height:14px;border-radius:50%;
+  border:2px solid white;display:flex;align-items:center;justify-content:center;
+  font-size:0.52rem;pointer-events:none;z-index:20;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+  transition:left 0.4s cubic-bezier(0.34,1.56,0.64,1),top 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+/* ── SIDEBAR ── */
+.sidebar{
+  flex:1;display:flex;flex-direction:column;gap:8px;
+  min-width:220px;max-width:260px;
+}
+@media(max-width:900px){
+  .sidebar{min-width:180px;max-width:220px;}
+}
+@media(max-width:700px){
+  .main-layout{flex-direction:column;align-items:center;}
+  .sidebar{min-width:unset;max-width:100%;width:100%;flex-direction:row;flex-wrap:wrap;}
+  .sidebar .panel{flex:1;min-width:200px;}
+}
+.panel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;padding:12px;
+  box-shadow:0 1px 4px rgba(13,14,18,0.05);
+}
+.ptitle{
+  font-family:'Space Mono',monospace;
+  font-size:0.6rem;font-weight:700;letter-spacing:0.1em;
+  color:var(--accent);text-transform:uppercase;
+  margin-bottom:8px;
+  padding-bottom:6px;
+  border-bottom:1px solid var(--border-2);
+  display:flex;align-items:center;gap:6px;
+}
+.ptitle::before{content:'';width:12px;height:2px;background:var(--accent);border-radius:1px;}
+.pcard{
+  display:flex;align-items:center;gap:8px;
+  padding:8px;border-radius:8px;margin-bottom:4px;
+  border:1px solid transparent;transition:all 0.15s;cursor:pointer;
+}
+.pcard:hover{background:var(--surface-2);}
+.pcard.active{background:var(--accent-light);border-color:var(--accent-border);}
+.ptok{
+  width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.85rem;border:2px solid rgba(255,255,255,0.4);flex-shrink:0;
+}
+.pi2{flex:1;}
+.pn2{font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:500;color:var(--ink);}
+.pm{font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;color:var(--ink);}
+.pp{font-size:0.62rem;color:var(--sub);}
+.jb,.bb,.ab{font-size:0.55rem;font-family:'Space Mono',monospace;padding:1px 4px;border-radius:3px;}
+.jb{color:var(--red);background:rgba(220,38,38,0.08);}
+.bb{color:var(--red);}
+.ab{color:var(--green);background:rgba(5,150,105,0.1);}
+.tier{font-size:0.5rem;padding:1px 4px;border-radius:3px;font-family:'Space Mono',monospace;}
+.tier.agg{background:rgba(220,38,38,0.1);color:var(--red);}
+.tier.bal{background:rgba(5,150,105,0.1);color:var(--green);}
+.tier.con{background:var(--accent-light);color:var(--accent);}
+.turn-bar{
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:8px;padding:8px 10px;
+  display:flex;align-items:center;gap:8px;
+}
+.tico{font-size:1.2rem;}
+.tname{font-family:'DM Serif Display',serif;font-size:0.9rem;font-weight:400;color:var(--ink);}
+.tstat{font-family:'DM Sans',sans-serif;font-size:0.65rem;color:var(--sub);}
+.tctr{
+  font-family:'Space Mono',monospace;
+  font-size:0.58rem;color:var(--sub);text-align:center;
+  margin-top:4px;letter-spacing:0.08em;
+}
+.dice-row{display:flex;gap:10px;align-items:center;justify-content:center;margin:6px 0;}
+.die{
+  width:36px;height:36px;background:white;border-radius:8px;
+  border:1px solid var(--border);
+  display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);
+  padding:4px;
+  box-shadow:0 2px 8px rgba(13,14,18,0.1);
+}
+.die.rolling{animation:dr 0.42s ease;}
+@keyframes dr{0%{transform:rotate(0)scale(1)}25%{transform:rotate(90deg)scale(1.1)}50%{transform:rotate(180deg)scale(.9)}75%{transform:rotate(270deg)scale(1.1)}100%{transform:rotate(360deg)scale(1)}}
+.pip{width:6px;height:6px;background:var(--ink);border-radius:50%;margin:auto;opacity:0;}
+.pip.show{opacity:1;}
+.dtot{
+  font-family:'DM Serif Display',serif;
+  font-size:1.5rem;font-weight:400;
+  color:var(--ink);min-width:28px;text-align:center;
+}
+.abtns{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:center;}
+.abtn{
+  padding:7px 11px;border:1px solid;
+  font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.04em;
+  cursor:pointer;border-radius:6px;transition:all 0.15s;white-space:nowrap;
+  font-weight:700;
+}
+.abtn:disabled{opacity:0.3;cursor:not-allowed;transform:none!important;}
+.abtn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,0.12);}
+.abtn.roll{background:var(--green-light);border-color:#a7f3d0;color:var(--green);}
+.abtn.end{background:var(--surface-3);border-color:var(--border);color:var(--mid);}
+.abtn.build{background:var(--accent-light);border-color:var(--accent-border);color:var(--accent);}
+.abtn.mort{background:rgba(220,38,38,0.06);border-color:rgba(220,38,38,0.2);color:var(--red);}
+.abtn.bail{background:var(--amber-light);border-color:rgba(217,119,6,0.3);color:var(--amber);}
+.abtn.trade{background:rgba(124,58,237,0.08);border-color:rgba(124,58,237,0.25);color:#7c3aed;}
+.abtn.unmort{background:var(--green-light);border-color:#a7f3d0;color:var(--green);}
+#log{
+  height:100px;overflow-y:auto;
+  font-size:0.65rem;line-height:1.7;color:var(--mid);
+}
+#log::-webkit-scrollbar{width:3px;}
+#log::-webkit-scrollbar-thumb{background:var(--border);}
+.le{border-bottom:1px solid var(--border-2);padding:2px 0;}
+.lg{color:var(--green);font-weight:600;}
+.lr{color:var(--red);}
+.own-grid{display:flex;flex-direction:column;gap:4px;}
+.own-row{display:flex;align-items:center;gap:6px;}
+.oc{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.on{font-family:'Space Mono',monospace;font-size:0.56rem;color:var(--sub);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ods{display:flex;gap:3px;}
+.od{width:9px;height:9px;border-radius:50%;border:1px solid var(--border);}
+/* ── MODAL ── */
+#modal{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(13,14,18,0.6);
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(8px);padding:20px;
+}
+#modal.show{display:flex;}
+.mbox{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;padding:24px;
+  max-width:420px;width:100%;
+  box-shadow:0 24px 80px rgba(13,14,18,0.15);
+  text-align:center;max-height:90vh;overflow-y:auto;
+}
+.mbox::-webkit-scrollbar{width:3px;}
+.mbox::-webkit-scrollbar-thumb{background:var(--border);}
+.mt{
+  font-family:'DM Serif Display',serif;
+  font-size:1.2rem;font-weight:400;
+  color:var(--ink);margin-bottom:8px;
+}
+.mb{font-size:0.88rem;color:var(--mid);line-height:1.65;margin-bottom:14px;}
+.mbs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.mbtn{
+  padding:8px 18px;border:1px solid;
+  font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;
+  letter-spacing:0.01em;cursor:pointer;border-radius:8px;
+  transition:all 0.15s;
+}
+.mbtn.p{background:var(--ink);border-color:var(--ink);color:#fff;}
+.mbtn.p:hover{background:var(--ink-2);transform:translateY(-1px);}
+.mbtn.s{background:var(--surface-3);border-color:var(--border);color:var(--mid);}
+.mbtn.s:hover{border-color:var(--ink);color:var(--ink);}
+/* Property card in modal */
+.prc{border-radius:10px;overflow:hidden;margin:10px auto;width:168px;box-shadow:0 4px 16px rgba(13,14,18,0.1);}
+.prch{padding:8px;font-family:'DM Serif Display',serif;font-size:0.8rem;font-weight:400;color:white;text-align:center;}
+.prcb{background:var(--surface);color:var(--ink);padding:8px 10px;font-size:0.68rem;line-height:2;}
+.prr{display:flex;justify-content:space-between;}
+.prr.b{font-weight:600;}
+.prd{border:none;border-top:1px solid var(--border-2);margin:4px 0;}
+/* Trade */
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;text-align:left;}
+.tcol{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:8px;padding:8px;
+}
+.tctitle{
+  font-family:'Space Mono',monospace;font-size:0.6rem;
+  color:var(--mid);letter-spacing:0.08em;margin-bottom:6px;
+}
+.titem{
+  display:flex;align-items:center;gap:5px;
+  padding:4px 0;border-bottom:1px solid var(--border-2);
+  cursor:pointer;transition:background 0.15s;border-radius:3px;
+}
+.titem:hover{background:var(--surface-3);}
+.titem.sel{background:var(--accent-light);}
+.tchk{
+  width:12px;height:12px;
+  border:1px solid var(--border);border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.52rem;flex-shrink:0;
+}
+.tchk.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.tiname{font-family:'DM Sans',sans-serif;font-size:0.65rem;color:var(--ink);}
+.minp{
+  width:100%;background:var(--surface-3);
+  border:1px solid var(--border);color:var(--ink);
+  font-family:'Space Mono',monospace;font-size:0.8rem;
+  padding:5px 8px;border-radius:6px;outline:none;
+  text-align:center;margin-top:6px;
+}
+.minp:focus{border-color:var(--accent);}
+/* ── WIN SCREEN ── */
+#winScreen{
+  position:fixed;inset:0;z-index:300;
+  background:rgba(255,255,255,0.97);
+  backdrop-filter:blur(16px);
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:16px;padding:20px;
+}
+.wtr{font-size:4rem;animation:bounce 1s ease infinite alternate;}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-12px)}}
+.wtitle{
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(1.8rem,7vw,3.2rem);font-weight:400;
+  color:var(--ink);text-align:center;
+  letter-spacing:-0.02em;
+}
+.wsub{
+  font-family:'Space Mono',monospace;
+  font-size:0.75rem;color:var(--mid);
+  letter-spacing:0.08em;text-align:center;
+}
+.wstats{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.wst{
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:10px;padding:10px 16px;text-align:center;
+}
+.wstv{font-family:'DM Serif Display',serif;font-size:1.4rem;font-weight:400;color:var(--ink);}
+.wstl{font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;color:var(--sub);margin-top:2px;}
+.wbtns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.wbtn{
+  padding:10px 24px;
+  font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;
+  letter-spacing:0.01em;cursor:pointer;border-radius:8px;transition:all 0.15s;
+}
+.wbtn.p{background:var(--ink);border:1px solid var(--ink);color:#fff;}
+.wbtn.p:hover{background:var(--ink-2);transform:translateY(-1px);}
+.wbtn.s{background:var(--surface-3);border:1px solid var(--border);color:var(--mid);}
+.wbtn.s:hover{border-color:var(--ink);color:var(--ink);}
+.wchart{width:100%;max-width:360px;}
+.chrow{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.chlbl{font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--mid);width:70px;text-align:right;flex-shrink:0;}
+.chbw{flex:1;background:var(--surface-3);border-radius:4px;height:14px;overflow:hidden;}
+.chb{height:100%;border-radius:4px;transition:width 0.6s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;}
+.chbv{font-size:0.55rem;color:white;font-family:'Space Mono',monospace;}
+.conf{position:fixed;pointer-events:none;z-index:400;}
+.wstv{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:var(--gold);}
+.wstl{font-family:'Special Elite',cursive;font-size:.58rem;letter-spacing:.13em;color:rgba(245,234,208,.42);margin-top:2px;}
+.wbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.wbtn{padding:10px 24px;font-family:'Special Elite',cursive;font-size:.84rem;letter-spacing:.12em;cursor:pointer;border-radius:4px;transition:all .2s;}
+.wbtn.p{background:var(--gold);border:none;color:var(--dark);}.wbtn.s{background:transparent;border:2px solid rgba(201,168,76,.36);color:var(--gold);}
+.wbtn:hover{transform:scale(1.05);}
+.wchart{width:100%;max-width:360px;}
+.chrow{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.chlbl{font-family:'Special Elite',cursive;font-size:.6rem;color:var(--cream);width:65px;text-align:right;flex-shrink:0;}
+.chbw{flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:13px;overflow:hidden;}
+.chb{height:100%;border-radius:3px;transition:width .6s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:3px;}
+.chbv{font-size:.56rem;color:white;font-family:'Special Elite',cursive;}
+.conf{position:fixed;pointer-events:none;z-index:400;}
+
+/* ── V4 ADDITIONS ── */
+/* Turn timer */
+.timer-wrap{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.timer-bar-bg{flex:1;height:4px;background:var(--surface-3);border-radius:2px;overflow:hidden;}
+.timer-bar{height:100%;background:var(--accent);border-radius:2px;transition:width 1s linear,background 0.3s;}
+.timer-bar.warn{background:var(--red);}
+.timer-lbl{font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--sub);min-width:22px;text-align:right;}
+
+/* Net-worth chart in sidebar */
+.nw-chart{margin-top:4px;}
+.nw-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.nw-lbl{font-family:'Space Mono',monospace;font-size:0.52rem;color:var(--sub);width:56px;text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nw-bg{flex:1;background:var(--surface-3);border-radius:2px;height:10px;overflow:hidden;}
+.nw-fill{height:100%;border-radius:2px;transition:width 0.5s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:2px;}
+.nw-val{font-size:0.48rem;color:rgba(255,255,255,0.9);font-family:'Space Mono',monospace;}
+
+/* Sound toggle */
+.sound-btn{
+  position:fixed;bottom:16px;right:16px;
+  width:36px;height:36px;border-radius:50%;
+  background:var(--surface);
+  border:1px solid var(--border);
+  color:var(--mid);font-size:0.9rem;cursor:pointer;
+  z-index:50;display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+  box-shadow:0 2px 8px rgba(13,14,18,0.08);
+}
+.sound-btn:hover{background:var(--surface-3);color:var(--ink);}
+
+/* Handoff screen */
+#handoffScreen{
+  position:fixed;inset:0;z-index:250;
+  background:rgba(255,255,255,0.98);
+  backdrop-filter:blur(16px);
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:20px;padding:24px;
+}
+#handoffScreen.show{display:flex;}
+.ho-token{font-size:4rem;animation:bounce 1s ease infinite alternate;}
+.ho-title{
+  font-family:'DM Serif Display',serif;font-size:2rem;font-weight:400;
+  color:var(--ink);text-align:center;letter-spacing:-0.02em;
+}
+.ho-sub{
+  font-family:'Space Mono',monospace;font-size:0.72rem;
+  color:var(--mid);text-align:center;letter-spacing:0.08em;
+}
+.ho-btn{
+  padding:14px 44px;background:var(--ink);
+  border:none;color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;
+  letter-spacing:0.02em;cursor:pointer;border-radius:10px;
+  transition:all 0.15s;box-shadow:0 4px 16px rgba(13,14,18,0.18);
+}
+.ho-btn:hover{background:var(--ink-2);transform:translateY(-1px);}
+
+/* Political Event card display */
+.evcard{
+  background:rgba(124,58,237,0.06);
+  border:1px solid rgba(124,58,237,0.2);
+  border-radius:8px;padding:10px 12px;margin:6px 0;text-align:left;
+}
+.evcard-title{
+  font-family:'Space Mono',monospace;font-size:0.62rem;
+  color:#7c3aed;letter-spacing:0.08em;margin-bottom:4px;
+}
+.evcard-body{font-size:0.8rem;color:var(--mid);line-height:1.55;}
+
+/* Cell hover highlight */
+.cell.owned-by-current{box-shadow:inset 0 0 0 2px var(--accent);}
+.cell.owned-by-hover{box-shadow:inset 0 0 0 2px rgba(29,78,216,0.4);}
+
+/* ── RESPONSIVE MOBILE ── */
+@media(max-width:600px){
+  .ghdr{padding:10px 14px;}
+  .hbtn{padding:5px 8px;font-size:0.55rem;}
+  .main-layout{padding:10px 8px;gap:8px;}
+  .sidebar .panel{padding:9px;}
+  .abtn{padding:6px 8px;font-size:0.55rem;}
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- START -->
+<div class="screen" id="startScreen">
+  <div class="start-inner">
+    <div class="crest">⚜</div>
+    <div class="game-title">POLYCIAL</div>
+    <div class="game-tagline">ACQUIRE LAND · WIELD POWER · DOMINATE THE NATION</div>
+    <div class="divs"></div>
+    <div class="save-badge" id="saveBadge" onclick="loadSaved()">💾 Resume saved game — tap to continue</div>
+    <div style="width:100%;display:flex;flex-direction:column;gap:10px;">
+      <div class="slbl">NUMBER OF PLAYERS</div>
+      <div class="count-row">
+        <button class="cnt-btn" onclick="setCount(2)">2</button>
+        <button class="cnt-btn active" onclick="setCount(3)">3</button>
+        <button class="cnt-btn" onclick="setCount(4)">4</button>
+      </div>
+      <div class="slbl" style="margin-top:3px;">PLAYER SETUP</div>
+      <div id="playerRows"></div>
+    </div>
+    <div class="cta-row">
+      <button class="btn-start" onclick="startGame()">▶ BEGIN SESSION</button>
+      <button class="btn-ol" onclick="showSettings()">⚙ SETTINGS</button>
+    </div>
+    <div class="ver">POLYCIAL v4.0 · POLITICAL PROPERTY GAME</div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen hidden" id="settingsScreen">
+  <div class="setp">
+    <div style="text-align:center;font-size:1.2rem;margin-bottom:4px;">⚙</div>
+    <div class="set-title">SETTINGS</div>
+    <div class="divs" style="margin-top:5px;"></div>
+    <div class="sg"><div class="sglbl">GAMEPLAY</div>
+      <div class="sr"><div class="sinfo"><div class="sname">Starting Money</div><div class="sdesc">Each player begins with this</div></div><div class="stepper"><button class="sbtn" onclick="stepS('startMoney',-500)">−</button><div class="sval" id="v-sm">$1500</div><button class="sbtn" onclick="stepS('startMoney',500)">+</button></div></div>
+      <div class="sr"><div class="sinfo"><div class="sname">GO Salary</div><div class="sdesc">Collect when passing GO</div></div><div class="stepper"><button class="sbtn" onclick="stepS('goSalary',-50)">−</button><div class="sval" id="v-gs">$200</div><button class="sbtn" onclick="stepS('goSalary',50)">+</button></div></div>
+      <div class="sr"><div class="sinfo"><div class="sname">Free Parking Jackpot</div><div class="sdesc">Taxes feed a pot; landing here wins it</div></div><label class="tw"><input type="checkbox" id="t-fp" onchange="togS('freeParking')"><span class="tsl"></span></label></div>
+      <div class="sr"><div class="sinfo"><div class="sname">Auction on Decline</div><div class="sdesc">Declined properties go to auction</div></div><label class="tw"><input type="checkbox" id="t-au" checked onchange="togS('auction')"><span class="tsl"></span></label></div>
+      <div class="sr"><div class="sinfo"><div class="sname">Double Salary on GO</div><div class="sdesc">Landing exactly on GO pays double</div></div><label class="tw"><input type="checkbox" id="t-dlg" onchange="togS('doubleLandGo')"><span class="tsl"></span></label></div>
+      <div class="sr"><div class="sinfo"><div class="sname">No Rent in Jail</div><div class="sdesc">Jailed players can't collect rent</div></div><label class="tw"><input type="checkbox" id="t-njr" onchange="togS('noJailRent')"><span class="tsl"></span></label></div>
+      <div class="sr"><div class="sinfo"><div class="sname">Max Houses Per Property</div><div class="sdesc">Before upgrading to hotel</div></div><div class="stepper"><button class="sbtn" onclick="stepS('maxHouses',-1)">−</button><div class="sval" id="v-mh">4</div><button class="sbtn" onclick="stepS('maxHouses',1)">+</button></div></div>
+      <div class="sr"><div class="sinfo"><div class="sname">Pass &amp; Play Mode</div><div class="sdesc">Show handoff screen between turns</div></div><label class="tw"><input type="checkbox" id="t-pap" onchange="togS('passAndPlay')"><span class="tsl"></span></label></div>
+      <div class="sr"><div class="sinfo"><div class="sname">Turn Timer (seconds)</div><div class="sdesc">0 = disabled. Counts down each turn</div></div><div class="stepper"><button class="sbtn" onclick="stepS('turnTimer',-15)">−</button><div class="sval" id="v-tt">OFF</div><button class="sbtn" onclick="stepS('turnTimer',15)">+</button></div></div>
+    </div>
+    <div class="sg"><div class="sglbl">VISUAL</div>
+      <div class="sr"><div class="sinfo"><div class="sname">Board Theme</div><div class="sdesc">Changes board color palette</div></div><select class="ssel" id="sel-theme" onchange="ST.boardTheme=this.value;applyTheme()"><option value="classic">Classic</option><option value="night">Night</option><option value="parchment">Parchment</option><option value="ocean">Ocean</option></select></div>
+      <div class="sr"><div class="sinfo"><div class="sname">Animation Speed</div><div class="sdesc">Token & dice animations</div></div><select class="ssel" id="sel-anim" onchange="ST.animSpeed=this.value"><option value="normal">Normal</option><option value="fast">Fast</option><option value="slow">Slow</option><option value="off">Off</option></select></div>
+      <div class="sr"><div class="sinfo"><div class="sname">Show Property Prices</div><div class="sdesc">Display price on board cells</div></div><label class="tw"><input type="checkbox" id="t-sp" checked onchange="togS('showPrices')"><span class="tsl"></span></label></div>
+    </div>
+    <button class="set-back" onclick="hideSettings()">← BACK TO MENU</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="gameScreen">
+  <div class="ghdr">
+    <div class="glogo"><div class="glogo-mark">P</div>POLYCIAL</div>
+    <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--sub);letter-spacing:.15em;flex:1;text-align:center;">v4 · POLITICAL PROPERTY</div>
+    <div class="hbtns">
+      <button class="hbtn" onclick="saveGame()">💾 SAVE</button>
+      <button class="hbtn" onclick="showMidStats()">📊 STATS</button>
+      <button class="hbtn" onclick="openQS()">⚙</button>
+      <button class="hbtn" onclick="confirmMenu()">✕</button>
+    </div>
+  </div>
+  <div class="main-layout">
+    <div style="position:relative;" id="boardWrap">
+      <div id="board"></div>
+    </div>
+    <div class="sidebar">
+      <div class="panel">
+        <div class="ptitle">CURRENT TURN</div>
+        <div class="turn-bar">
+          <div class="tico" id="tIco">🎩</div>
+          <div><div class="tname" id="tName">Player 1</div><div class="tstat" id="tStat">Roll the dice</div></div>
+        </div>
+        <div class="tctr" id="tctr">Turn 1</div>
+        <div class="timer-wrap" id="timerWrap" style="display:none">
+          <div class="timer-bar-bg"><div class="timer-bar" id="timerBar" style="width:100%"></div></div>
+          <div class="timer-lbl" id="timerLbl">60</div>
+        </div>
+      </div>
+      <div class="panel" id="nwPanel">
+        <div class="ptitle">NET WORTH</div>
+        <div class="nw-chart" id="nwChart"></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">PLAYERS</div>
+        <div id="playerCards"></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">ACTIONS</div>
+        <div class="dice-row">
+          <div class="die" id="die1"><div class="pip" id="d1p1"></div><div class="pip" id="d1p2"></div><div class="pip" id="d1p3"></div><div class="pip" id="d1p4"></div><div class="pip" id="d1p5"></div><div class="pip" id="d1p6"></div><div class="pip" id="d1p7"></div><div class="pip" id="d1p8"></div><div class="pip" id="d1p9"></div></div>
+          <div class="dtot" id="dtot">?</div>
+          <div class="die" id="die2"><div class="pip" id="d2p1"></div><div class="pip" id="d2p2"></div><div class="pip" id="d2p3"></div><div class="pip" id="d2p4"></div><div class="pip" id="d2p5"></div><div class="pip" id="d2p6"></div><div class="pip" id="d2p7"></div><div class="pip" id="d2p8"></div><div class="pip" id="d2p9"></div></div>
+        </div>
+        <div class="abtns">
+          <button class="abtn roll" id="rollBtn" onclick="rollDice()">🎲 ROLL</button>
+          <button class="abtn bail" id="bailBtn" onclick="payBail()" style="display:none">💰 BAIL</button>
+          <button class="abtn build" id="buildBtn" onclick="promptBuild()" style="display:none">🏠 BUILD</button>
+          <button class="abtn mort" id="mortBtn" onclick="promptMort()" style="display:none">📜 MORT</button>
+          <button class="abtn unmort" id="unmortBtn" onclick="promptUnmort()" style="display:none">🔓 UNMORT</button>
+          <button class="abtn trade" id="tradeBtn" onclick="promptTrade()" style="display:none">🤝 TRADE</button>
+          <button class="abtn end" id="endBtn" onclick="endTurn()" style="display:none">→ END</button>
+        </div>
+        <div id="fpDisp" style="display:none;text-align:center;margin-top:5px;font-family:'Space Mono',monospace;font-size:.64rem;color:var(--accent);">🌳 Jackpot: <span id="jpAmt">$0</span></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">OWNERSHIP</div>
+        <div class="own-grid" id="ownGrid"></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">GAME LOG</div>
+        <div id="log"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal">
+  <div class="mbox">
+    <div class="mt" id="mT"></div>
+    <div class="mb" id="mB"></div>
+    <div id="mC"></div>
+    <div id="mX"></div>
+    <div class="mbs" id="mBs"></div>
+  </div>
+</div>
+
+<!-- HANDOFF SCREEN -->
+<div id="handoffScreen">
+  <div class="ho-token" id="hoToken">🎩</div>
+  <div class="ho-title" id="hoTitle">PASS TO PLAYER</div>
+  <div class="ho-sub" id="hoSub">Hand the device to the next player</div>
+  <button class="ho-btn" onclick="dismissHandoff()">I'M READY ▶</button>
+</div>
+
+<!-- SOUND TOGGLE -->
+<button class="sound-btn" id="soundBtn" onclick="toggleSound()" title="Toggle Sound">🔊</button>
+
+<!-- WIN -->
+<div id="winScreen">
+  <div class="wtr">🏆</div>
+  <div class="wtitle" id="wTitle">WINNER!</div>
+  <div class="wsub" id="wSub"></div>
+  <div class="wstats" id="wStats"></div>
+  <div class="wchart" id="wChart"></div>
+  <div class="wbtns">
+    <button class="wbtn p" onclick="goMenu()">PLAY AGAIN</button>
+    <button class="wbtn s" onclick="showScoreboard()">SCOREBOARD</button>
+  </div>
+</div>
+
+<script>
+// ═══ SETTINGS ═══
+const ST={startMoney:1500,goSalary:200,freeParking:false,auction:true,doubleLandGo:false,noJailRent:false,maxHouses:4,showPrices:true,boardTheme:'classic',animSpeed:'normal',passAndPlay:false,turnTimer:0};
+const SLIM={startMoney:[500,5000],goSalary:[100,500],maxHouses:[1,4],turnTimer:[0,120]};
+const ADUR={normal:400,fast:160,slow:780,off:0};
+const THEMES={classic:{bg:'#d4e8c2',cell:'#e8f0d4',corner:'#cfe8c0'},night:{bg:'#1a2230',cell:'#202a3a',corner:'#1a2030'},parchment:{bg:'#e8d8b0',cell:'#f0e4c0',corner:'#e0cc9c'},ocean:{bg:'#b8d8e8',cell:'#cce4f0',corner:'#a8ccde'}};
+function stepS(k,d){const[mn,mx]=SLIM[k];ST[k]=Math.max(mn,Math.min(mx,ST[k]+d));const ids={startMoney:'v-sm',goSalary:'v-gs',maxHouses:'v-mh',turnTimer:'v-tt'};const el=document.getElementById(ids[k]);if(el){if(k==='maxHouses')el.textContent=ST[k];else if(k==='turnTimer')el.textContent=ST[k]===0?'OFF':ST[k]+'s';else el.textContent='$'+ST[k];}}
+function togS(k){const ids={freeParking:'t-fp',auction:'t-au',doubleLandGo:'t-dlg',noJailRent:'t-njr',showPrices:'t-sp',passAndPlay:'t-pap'};if(ids[k])ST[k]=document.getElementById(ids[k]).checked;}
+function applyTheme(){const t=THEMES[ST.boardTheme]||THEMES.classic;document.getElementById('board').style.background=t.bg;document.querySelectorAll('.cell').forEach(c=>{c.style.background=c.classList.contains('corner')?t.corner:t.cell;});}
+
+// ═══ NAV ═══
+function showSettings(){document.getElementById('startScreen').classList.add('hidden');document.getElementById('settingsScreen').classList.remove('hidden');}
+function hideSettings(){document.getElementById('settingsScreen').classList.add('hidden');document.getElementById('startScreen').classList.remove('hidden');}
+function confirmMenu(){showModal('↩ EXIT','Return to menu? Unsaved progress lost.',[{l:'SAVE & EXIT',p:true,cb:()=>{saveGame();goMenu();}},{l:'EXIT',p:false,cb:()=>goMenu()},{l:'CANCEL',p:false,cb:()=>{}}]);}
+function goMenu(){stopTimer();document.getElementById('gameScreen').style.display='none';document.getElementById('winScreen').style.display='none';document.getElementById('handoffScreen').classList.remove('show');document.getElementById('startScreen').classList.remove('hidden');gameActive=false;document.querySelectorAll('.tsprite').forEach(s=>s.remove());}
+function openQS(){showModal('⚙ SETTINGS',`<div style="text-align:left;font-size:.8rem;line-height:2.2;color:var(--ink)"><b>Free Parking Jackpot:</b> ${ST.freeParking?'ON':'OFF'}<br><b>GO Salary:</b> $${ST.goSalary}<br><b>Starting Money:</b> $${ST.startMoney}<br><b>Theme:</b> ${ST.boardTheme}</div>`,[{l:'TOGGLE JACKPOT',p:true,cb:()=>{ST.freeParking=!ST.freeParking;document.getElementById('fpDisp').style.display=ST.freeParking?'block':'none';log('<span class="lg">Free Parking: '+(ST.freeParking?'ON':'OFF')+'</span>');}},{l:'CLOSE',p:false,cb:()=>{}}]);}
+
+// ═══ PLAYER SETUP ═══
+const PT=['🎩','🦅','🦁','🌟'],PC=['#e74c3c','#3498db','#2ecc71','#f39c12'],PN=['Senator Reed','Governor Hall','Mayor Chen','Councilor Vex'];
+const AI_TIERS=['balanced','aggressive','conservative'];
+let numPlayers=3,pCfg=PN.map((n,i)=>({name:n,token:PT[i],color:PC[i],ai:false,aiTier:'balanced'}));
+function setCount(n){numPlayers=n;document.querySelectorAll('.cnt-btn').forEach((b,i)=>b.classList.toggle('active',i+2===n));renderPRows();}
+function renderPRows(){
+  const c=document.getElementById('playerRows');c.innerHTML='';
+  for(let i=0;i<4;i++){const cfg=pCfg[i];const row=document.createElement('div');row.className='prow'+(i>=numPlayers?' disabled':'');
+    row.innerHTML=`<div class="ptk" style="background:${cfg.color}">${cfg.token}</div><input class="pni" value="${cfg.name}" placeholder="Player ${i+1}" oninput="pCfg[${i}].name=this.value"><button class="ai-tog${cfg.ai?' ai':''}" onclick="toggleAI(${i})">${cfg.ai?'🤖 '+cfg.aiTier.slice(0,3).toUpperCase():'👤 HUM'}</button>`;
+    c.appendChild(row);}
+}
+function toggleAI(i){if(!pCfg[i].ai){pCfg[i].ai=true;pCfg[i].aiTier='balanced';}else{const idx=(AI_TIERS.indexOf(pCfg[i].aiTier)+1)%AI_TIERS.length;if(idx===0)pCfg[i].ai=false;else pCfg[i].aiTier=AI_TIERS[idx];}renderPRows();}
+
+// ═══ DATA ═══
+const GROUPS={brown:{color:'#8B4513',rent:[2,4,10,30,90,160,250]},lightblue:{color:'#1a90c0',rent:[6,12,30,90,270,400,550]},pink:{color:'#C2185B',rent:[10,20,50,150,450,625,750]},orange:{color:'#E65100',rent:[14,28,70,200,550,750,950]},red:{color:'#C62828',rent:[18,36,90,250,700,875,1050]},yellow:{color:'#F9A825',rent:[22,44,110,330,800,975,1150]},green:{color:'#2E7D32',rent:[26,52,130,390,900,1100,1275]},navy:{color:'#1565C0',rent:[35,70,175,500,1100,1300,1500]}};
+const GS=[2,3,3,3,3,3,3,2];
+const SP=[
+  {name:'GO',type:'go',icon:'🏛️'},{name:'Capitol Ave',type:'property',color:'brown',price:60,mortgage:30,houseCost:50,group:0},
+  {name:'Community',type:'community',icon:'📜'},{name:'Senate Blvd',type:'property',color:'brown',price:60,mortgage:30,houseCost:50,group:0},
+  {name:'Income Tax',type:'tax',icon:'💸',amount:200},{name:'Ballot Rail',type:'railroad',icon:'🚂',price:200},
+  {name:'Embassy Row',type:'property',color:'lightblue',price:100,mortgage:50,houseCost:50,group:1},{name:'Chance',type:'chance',icon:'❓'},
+  {name:'Lobby Lane',type:'property',color:'lightblue',price:100,mortgage:50,houseCost:50,group:1},{name:'Diplomat Dr',type:'property',color:'lightblue',price:120,mortgage:60,houseCost:50,group:1},
+  {name:'Jail',type:'jail',icon:'⚖️'},{name:'Congress St',type:'property',color:'pink',price:140,mortgage:70,houseCost:100,group:2},
+  {name:'Power Co.',type:'utility',icon:'⚡',price:150},{name:'Caucus Ct',type:'property',color:'pink',price:140,mortgage:70,houseCost:100,group:2},
+  {name:'Cabinet Way',type:'property',color:'pink',price:160,mortgage:80,houseCost:100,group:2},{name:'Reform Rail',type:'railroad',icon:'🚂',price:200},
+  {name:'Policy Plaza',type:'property',color:'orange',price:180,mortgage:90,houseCost:100,group:3},{name:'Community',type:'community',icon:'📜'},
+  {name:'Veto Blvd',type:'property',color:'orange',price:180,mortgage:90,houseCost:100,group:3},{name:'Filibuster Rd',type:'property',color:'orange',price:200,mortgage:100,houseCost:100,group:3},
+  {name:'Free Park',type:'freeparking',icon:'🌳'},{name:'Referendum Rd',type:'property',color:'red',price:220,mortgage:110,houseCost:150,group:4},
+  {name:'Chance',type:'chance',icon:'❓'},{name:'Mandate Dr',type:'property',color:'red',price:220,mortgage:110,houseCost:150,group:4},
+  {name:'Vantage Ave',type:'property',color:'red',price:240,mortgage:120,houseCost:150,group:4},{name:'Vote Rail',type:'railroad',icon:'🚂',price:200},
+  {name:'Ballot Box',type:'property',color:'yellow',price:260,mortgage:130,houseCost:150,group:5},{name:'Majority Ln',type:'property',color:'yellow',price:260,mortgage:130,houseCost:150,group:5},
+  {name:'Water Works',type:'utility',icon:'💧',price:150},{name:'Speaker St',type:'property',color:'yellow',price:280,mortgage:140,houseCost:150,group:5},
+  {name:'Go To Jail',type:'gotojail',icon:'🚔'},{name:'Coalition Cl',type:'property',color:'green',price:300,mortgage:150,houseCost:200,group:6},
+  {name:'Amnesty Ave',type:'property',color:'green',price:300,mortgage:150,houseCost:200,group:6},{name:'Community',type:'community',icon:'📜'},
+  {name:'Partisan Pl',type:'property',color:'green',price:320,mortgage:160,houseCost:200,group:6},{name:'Tycoon Rail',type:'railroad',icon:'🚂',price:200},
+  {name:'Chance',type:'chance',icon:'❓'},{name:'Executive Blvd',type:'property',color:'navy',price:350,mortgage:175,houseCost:200,group:7},
+  {name:'Luxury Tax',type:'tax',icon:'💎',amount:100},{name:'The Palace',type:'property',color:'navy',price:400,mortgage:200,houseCost:200,group:7}
+];
+
+const CC=[
+  {text:'Advance to GO! Collect salary.',act:p=>{aMTS(p,0,true);addM(p,ST.goSalary);return'Advance to GO';}},
+  {text:'Elected Chairman — pay $50 each.',act:p=>{let t=0;PL.forEach((_,i)=>{if(i!==p&&!PL[i].bankrupt){PL[i].money+=50;t+=50;}});addM(p,-t);return'Pay $50 each';}},
+  {text:'Bank dividend. Collect $50.',act:p=>{addM(p,50);return'Collect $50';}},
+  {text:'Go to Jail.',act:p=>{gJail(p);return'Go to Jail!';}},
+  {text:'Speeding fine. Pay $15.',act:p=>{addM(p,-15);return'Pay $15';}},
+  {text:'Filibuster succeeded! Collect $150.',act:p=>{addM(p,150);return'Collect $150';}},
+  {text:'Advance to nearest railroad.',act:p=>{const rr=[5,15,25,35];const pos=PL[p].position;const nx=rr.find(r=>r>pos)||rr[0];aMTS(p,nx,nx<pos);return'Nearest railroad';}},
+  {text:'Get Out of Jail Free card!',act:p=>{PL[p].jailCards=(PL[p].jailCards||0)+1;return'Get Out of Jail Free!';}},
+  {text:'Consulting fee. Collect $25.',act:p=>{addM(p,25);return'Collect $25';}}
+];
+const MC=[
+  {text:'Tax refund! Collect $100.',act:p=>{addM(p,100);return'Refund $100';}},
+  {text:"Doctor's fees. Pay $50.",act:p=>{addM(p,-50);return'Pay $50';}},
+  {text:'You inherit $100.',act:p=>{addM(p,100);return'Inherit $100';}},
+  {text:'Go to Jail.',act:p=>{gJail(p);return'Go to Jail!';}},
+  {text:'Life insurance matures. +$100.',act:p=>{addM(p,100);return'Collect $100';}},
+  {text:'Get Out of Jail Free card!',act:p=>{PL[p].jailCards=(PL[p].jailCards||0)+1;return'Get Out of Jail Free!';}},
+  {text:'School fees. Pay $50.',act:p=>{addM(p,-50);return'Pay $50';}},
+  {text:'Advance to GO! Collect salary.',act:p=>{aMTS(p,0,true);addM(p,ST.goSalary);return'Advance to GO';}}
+];
+// Political Event Cards — triggered randomly once per round
+const EVENTS=[
+  {title:'CAMPAIGN FINANCE REFORM',body:'All players pay $30 each to the Treasury (Free Parking pot).',act:()=>{PL.forEach((_,i)=>{if(!PL[i].bankrupt){addM(i,-30);if(ST.freeParking)jackpot+=30;}});return'Campaign Finance Reform: all pay $30';}},
+  {title:'ELECTION RESULTS',body:'The leading player by net worth pays a "popularity tax" of $100.',act:()=>{const wi=PL.reduce((b,p,i)=>(!p.bankrupt&&nw(i)>nw(b)?i:b),0);addM(wi,-100);return PL[wi].name+' pays $100 popularity tax';}},
+  {title:'INFRASTRUCTURE BILL',body:'All railroad owners collect $50 per railroad they own.',act:()=>{PL.forEach((_,i)=>{if(PL[i].bankrupt)return;const cnt=Object.entries(PR).filter(([idx,pr])=>SP[idx].type==='railroad'&&pr.owner===i).length;if(cnt)addM(i,cnt*50);});return'Railroad owners collect $50 each';}},
+  {title:'SCANDAL!',body:'The richest player loses $200 in legal fees.',act:()=>{const ri=PL.reduce((b,p,i)=>(!p.bankrupt&&PL[i].money>PL[b].money?i:b),0);addM(ri,-200);return PL[ri].name+' loses $200 in scandal';}},
+  {title:'ECONOMIC STIMULUS',body:'Every player collects $50 from the government.',act:()=>{PL.forEach((_,i)=>{if(!PL[i].bankrupt)addM(i,50);});return'All players collect $50 stimulus';}},
+  {title:'EMINENT DOMAIN',body:'The government seizes one random unowned property — it goes to auction immediately.',act:()=>{const avail=Object.entries(PR).filter(([,pr])=>pr.owner===-1);if(!avail.length)return'No unowned properties';const[idx,prop]=avail[Math.floor(Math.random()*avail.length)];runAuction(parseInt(idx),SP[parseInt(idx)],-1);return'Eminent Domain auction on '+SP[parseInt(idx)].name;}},
+];
+let nextEventAt=5; // trigger event every N turns
+
+// ═══ STATE ═══
+let PL=[],PR={},CP=0,hasRolled=false,dblCount=0,gameActive=false,jackpot=0,lastDice=[1,1],turnNum=1;
+let stats={rentPaid:[],goCount:[],propsBought:[]};
+
+// ═══ START ═══
+function startGame(){
+  PL=[];
+  for(let i=0;i<numPlayers;i++){const c=pCfg[i];PL.push({name:c.name||'Player '+(i+1),token:c.token,color:c.color,ai:c.ai,aiTier:c.aiTier,money:ST.startMoney,position:0,inJail:false,jailTurns:0,bankrupt:false,jailCards:0});}
+  PR={};SP.forEach((s,i)=>{if(['property','railroad','utility'].includes(s.type))PR[i]={owner:-1,houses:0,mortgaged:false};});
+  CP=0;hasRolled=false;dblCount=0;gameActive=true;jackpot=0;lastDice=[1,1];turnNum=1;
+  stats={rentPaid:Array(numPlayers).fill(0),goCount:Array(numPlayers).fill(0),propsBought:Array(numPlayers).fill(0)};
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('settingsScreen').classList.add('hidden');
+  const gs=document.getElementById('gameScreen');gs.style.display='flex';gs.style.flexDirection='column';gs.style.alignItems='center';
+  document.getElementById('fpDisp').style.display=ST.freeParking?'block':'none';
+  buildBoard();buildSprites();renderH();renderPL();updateUI();renderOwn();applyTheme();renderNW();
+  document.getElementById('timerWrap').style.display=ST.turnTimer?'flex':'none';
+  log('⚜ <span class="lg">POLYCIAL v4!</span> $'+ST.startMoney+' each · GO: $'+ST.goSalary);
+  if(PL[0].ai)setTimeout(aiTurn,700);else showHandoff(0,()=>{startTimer();});
+}
+
+// ═══ BOARD ═══
+function buildBoard(){
+  const board=document.getElementById('board');board.innerHTML='';
+  const grid=Array.from({length:11},()=>Array(11).fill(null));
+  for(let c=0;c<=10;c++)grid[10][c]=10-c;
+  for(let r=0;r<=9;r++)grid[r][0]=20-r;
+  for(let c=0;c<=10;c++)grid[0][c]=20+c;
+  for(let r=1;r<=9;r++)grid[r][10]=30+r;
+  for(let r=0;r<=10;r++){for(let c=0;c<=10;c++){
+    const idx=grid[r][c];
+    if(r===1&&c===1){const cen=document.createElement('div');cen.className='bc';cen.style.gridColumn='2/11';cen.style.gridRow='2/11';cen.innerHTML='<div class="cbg"></div><div class="cico">⚜</div><div class="ctitle">POLYCIAL</div><div class="csub">THE POLITICAL PROPERTY GAME</div><div class="btr" id="btr">🎩</div>';board.appendChild(cen);continue;}
+    if(r>=1&&r<=9&&c>=1&&c<=9)continue;if(idx===null)continue;
+    const space=SP[idx%40];const cell=document.createElement('div');cell.className='cell';cell.id='cell-'+(idx%40);cell.style.gridRow=r+1;cell.style.gridColumn=c+1;
+    if((r===0&&c===0)||(r===0&&c===10)||(r===10&&c===0)||(r===10&&c===10))cell.classList.add('corner');
+    cell.onclick=()=>showSpInfo(idx%40);
+    if(space.type==='property'){const bar=document.createElement('div');bar.className='cbar';bar.style.background=GROUPS[space.color].color;cell.appendChild(bar);}
+    const nm=document.createElement('div');nm.className='cn';nm.textContent=space.name;
+    if(space.type==='property'){cell.appendChild(nm);if(ST.showPrices){const pe=document.createElement('div');pe.className='cp';pe.textContent='$'+space.price;cell.appendChild(pe);}}
+    else{const ic=document.createElement('div');ic.className='ci';ic.textContent=space.icon||'?';cell.appendChild(ic);cell.appendChild(nm);}
+    const ha=document.createElement('div');ha.className='ha';ha.id='ha-'+(idx%40);cell.appendChild(ha);
+    const ta=document.createElement('div');ta.className='ta';ta.id='ta-'+(idx%40);cell.appendChild(ta);
+    board.appendChild(cell);
+  }}
+}
+
+// ═══ SPRITES ═══
+function buildSprites(){
+  document.querySelectorAll('.tsprite').forEach(s=>s.remove());
+  const wrap=document.getElementById('boardWrap');
+  PL.forEach((p,i)=>{if(p.bankrupt)return;const sp=document.createElement('div');sp.className='tsprite';sp.id='sp-'+i;sp.style.background=p.color;sp.textContent=p.token;wrap.appendChild(sp);posSprite(i);});
+}
+function posSprite(i){
+  const sp=document.getElementById('sp-'+i);if(!sp)return;
+  const cell=document.getElementById('cell-'+PL[i].position);if(!cell)return;
+  const wrap=document.getElementById('boardWrap');
+  const br=wrap.getBoundingClientRect(),cr=cell.getBoundingClientRect();
+  const off=(i%3)*15;
+  sp.style.left=(cr.left-br.left+2+off)+'px';
+  sp.style.top=(cr.top-br.top+cr.height-15)+'px';
+}
+function allSprites(){PL.forEach((_,i)=>posSprite(i));}
+
+// ═══ RENDER ═══
+function renderH(){
+  document.querySelectorAll('.ha').forEach(e=>e.innerHTML='');
+  document.querySelectorAll('.mov,.mtxt,.odot').forEach(e=>e.remove());
+  Object.entries(PR).forEach(([idx,prop])=>{
+    const ha=document.getElementById('ha-'+idx);
+    if(ha&&prop.houses>0)ha.innerHTML=prop.houses===5?'<span class="hotel"></span>':Array(prop.houses).fill('<span class="house"></span>').join('');
+    const cell=document.getElementById('cell-'+idx);if(!cell)return;
+    if(prop.mortgaged){const ov=document.createElement('div');ov.className='mov';cell.appendChild(ov);const mt=document.createElement('div');mt.className='mtxt';mt.textContent='MORTGAGED';cell.appendChild(mt);}
+    if(prop.owner>=0){const od=document.createElement('div');od.className='odot';od.style.background=PL[prop.owner].color;cell.appendChild(od);}
+  });
+}
+
+function renderPL(){
+  const c=document.getElementById('playerCards');c.innerHTML='';
+  PL.forEach((p,i)=>{
+    const owned=Object.values(PR).filter(pr=>pr.owner===i).length;
+    const card=document.createElement('div');card.className='pcard'+(i===CP?' active':'');
+    card.onclick=()=>showPlInfo(i);
+    card.onmouseenter=()=>highlightOwned(i,true);
+    card.onmouseleave=()=>highlightOwned(i,false);
+    let badges=p.ai?`<span class="ab">🤖</span> <span class="tier ${p.aiTier==='aggressive'?'agg':p.aiTier==='conservative'?'con':'bal'}">${p.aiTier.slice(0,3).toUpperCase()}</span>`:' ';
+    if(p.inJail)badges+=` <span class="jb">JAIL</span>`;if(p.bankrupt)badges+=` <span class="bb">✕</span>`;
+    if(p.jailCards)badges+=` <span class="jb">🃏${p.jailCards}</span>`;
+    card.innerHTML=`<div class="ptok" style="background:${p.color}">${p.token}</div><div class="pi2"><div class="pn2">${p.name}${badges}</div><div class="pm">$${p.money.toLocaleString()}</div><div class="pp">${owned} props · NW $${nw(i).toLocaleString()}</div></div>`;
+    c.appendChild(card);
+  });
+  const btr=document.getElementById('btr');if(btr)btr.textContent=PL[CP]?.token||'?';
+}
+
+function nw(pi){let v=PL[pi].money;Object.entries(PR).forEach(([idx,pr])=>{if(pr.owner===pi){const s=SP[idx];v+=pr.mortgaged?(s.mortgage||0):((s.price||0)+pr.houses*(s.houseCost||0));}});return v;}
+
+function renderOwn(){
+  const grid=document.getElementById('ownGrid');grid.innerHTML='';
+  ['brown','lightblue','pink','orange','red','yellow','green','navy'].forEach(col=>{
+    const spaces=Object.entries(PR).filter(([i])=>SP[i].type==='property'&&SP[i].color===col);if(!spaces.length)return;
+    const row=document.createElement('div');row.className='own-row';
+    const dot=document.createElement('div');dot.className='oc';dot.style.background=GROUPS[col].color;row.appendChild(dot);
+    const nm=document.createElement('div');nm.className='on';nm.textContent=col;row.appendChild(nm);
+    const dots=document.createElement('div');dots.className='ods';
+    spaces.forEach(([,pr])=>{const d=document.createElement('div');d.className='od';d.style.background=pr.owner>=0?PL[pr.owner].color:'rgba(255,255,255,.1)';if(pr.mortgaged)d.style.opacity='.32';dots.appendChild(d);});
+    row.appendChild(dots);grid.appendChild(row);
+  });
+  const rails=Object.entries(PR).filter(([i])=>SP[i].type==='railroad');
+  if(rails.length){const row=document.createElement('div');row.className='own-row';row.innerHTML='<div class="oc" style="background:#666"></div><div class="on">railroads</div><div class="ods">'+rails.map(([,pr])=>`<div class="od" style="background:${pr.owner>=0?PL[pr.owner].color:'rgba(255,255,255,.1)'}"></div>`).join('')+'</div>';grid.appendChild(row);}
+}
+
+function updateUI(){
+  const p=PL[CP];
+  document.getElementById('tIco').textContent=p.token;
+  document.getElementById('tName').textContent=p.name+(p.ai?' 🤖':'');
+  document.getElementById('tStat').textContent=p.inJail?'Jailed — Roll or Pay':(hasRolled?'Action / End turn':'Roll the dice');
+  document.getElementById('tctr').textContent='Turn '+turnNum;
+  document.getElementById('rollBtn').disabled=hasRolled;
+  document.getElementById('endBtn').style.display=hasRolled?'':'none';
+  document.getElementById('bailBtn').style.display=(p.inJail&&!hasRolled&&(p.money>=50||p.jailCards>0))?'':'none';
+  document.getElementById('buildBtn').style.display=(hasRolled&&canBuild(CP))?'':'none';
+  const hm=Object.entries(PR).some(([i,pr])=>pr.owner===CP&&!pr.mortgaged&&pr.houses===0);
+  document.getElementById('mortBtn').style.display=(hasRolled&&hm)?'':'none';
+  const hu=Object.entries(PR).some(([i,pr])=>pr.owner===CP&&pr.mortgaged);
+  document.getElementById('unmortBtn').style.display=(hasRolled&&hu)?'':'none';
+  const hp=Object.values(PR).some(pr=>pr.owner===CP);
+  document.getElementById('tradeBtn').style.display=(hasRolled&&hp&&numPlayers>1)?'':'none';
+  if(ST.freeParking)document.getElementById('jpAmt').textContent='$'+jackpot;
+  renderPL();renderOwn();renderNW();highlightCurrentOwned();
+}
+
+// ═══ DICE ═══
+const DP={1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]};
+function rDie(n,v){for(let i=1;i<=9;i++)document.getElementById('d'+n+'p'+i).classList.remove('show');(DP[v]||[]).forEach(p=>document.getElementById('d'+n+'p'+p).classList.add('show'));}
+
+function rollDice(){
+  if(hasRolled&&!PL[CP].inJail)return;const p=PL[CP];if(p.bankrupt){endTurn();return;}
+  const d1=Math.ceil(Math.random()*6),d2=Math.ceil(Math.random()*6),tot=d1+d2,dbl=d1===d2;
+  lastDice=[d1,d2];const dur=ADUR[ST.animSpeed]||400;
+  if(dur>0){document.getElementById('die1').classList.add('rolling');document.getElementById('die2').classList.add('rolling');}
+  sfxDice();
+  document.getElementById('dtot').textContent='...';
+  setTimeout(()=>{
+    document.getElementById('die1').classList.remove('rolling');document.getElementById('die2').classList.remove('rolling');
+    rDie(1,d1);rDie(2,d2);document.getElementById('dtot').textContent=tot;
+    if(p.inJail)hJailRoll(p,CP,d1,d2,dbl,tot);else procRoll(CP,d1,d2,dbl,tot);
+  },Math.max(dur,30));
+}
+function procRoll(pi,d1,d2,dbl,tot){
+  const p=PL[pi];
+  if(dbl){dblCount++;if(dblCount>=3){gJail(pi);hasRolled=true;updateUI();return;}}else dblCount=0;
+  log(p.token+' <span class="lg">'+p.name+'</span> rolls <b>'+d1+'+'+d2+'='+tot+'</b>'+(dbl?' <span class="lg">Doubles!</span>':''));
+  aMP(pi,tot);hasRolled=!dbl;updateUI();
+  if(dbl&&!p.inJail&&!p.bankrupt)setTimeout(()=>{if(p.ai)aiTurn();},600);
+}
+function hJailRoll(p,pi,d1,d2,dbl,tot){
+  if(dbl){p.inJail=false;p.jailTurns=0;log(p.token+' <span class="lg">'+p.name+' escapes Jail with doubles!</span>');aMP(pi,tot);hasRolled=true;updateUI();return;}
+  p.jailTurns++;
+  if(p.jailTurns>=3){addM(pi,-50);p.inJail=false;p.jailTurns=0;log(p.token+' <span class="lr">'+p.name+' forced to pay $50 bail.</span>');aMP(pi,tot);}
+  else log(p.token+' <span class="lr">'+p.name+' stuck in Jail ('+p.jailTurns+'/3).</span>');
+  hasRolled=true;updateUI();
+}
+function payBail(){
+  const p=PL[CP];
+  if(p.jailCards>0){p.jailCards--;p.inJail=false;p.jailTurns=0;log(p.token+' <span class="lg">'+p.name+' uses Jail Free card!</span>');}
+  else if(p.money>=50){addM(CP,-50);p.inJail=false;p.jailTurns=0;log(p.token+' <span class="lg">'+p.name+' pays $50 bail!</span>');}
+  updateUI();
+}
+
+// ═══ MOVEMENT ═══
+function aMP(pi,steps){
+  const p=PL[pi];const newPos=(p.position+steps)%40;
+  if(newPos<p.position&&steps>0){let bonus=ST.goSalary;if(ST.doubleLandGo&&newPos===0)bonus*=2;addM(pi,bonus);stats.goCount[pi]++;sfxGo();log(p.token+' <span class="lg">'+p.name+' passes GO! +$'+bonus+'</span>');}
+  p.position=newPos;const dur=ADUR[ST.animSpeed]||400;
+  setTimeout(()=>posSprite(pi),10);
+  setTimeout(()=>landOn(pi,newPos),Math.max(dur+50,60));
+}
+function aMTS(pi,idx,passGo){
+  const p=PL[pi];if(passGo){addM(pi,ST.goSalary);stats.goCount[pi]++;log(p.token+' <span class="lg">Passes GO +$'+ST.goSalary+'</span>');}
+  p.position=idx;const dur=ADUR[ST.animSpeed]||400;
+  setTimeout(()=>posSprite(pi),10);
+  setTimeout(()=>landOn(pi,idx),Math.max(dur+50,60));
+}
+
+function landOn(pi,pos){
+  const p=PL[pi],space=SP[pos];
+  log(p.token+' <span class="lg">'+p.name+'</span> → <b>'+space.name+'</b>');
+  if(space.type==='tax')payTax(pi,space);
+  else if(space.type==='chance')drawCard(pi,'chance');
+  else if(space.type==='community')drawCard(pi,'community');
+  else if(space.type==='gotojail')gJail(pi);
+  else if(space.type==='go'&&ST.doubleLandGo){addM(pi,ST.goSalary);log('<span class="lg">Landed on GO! Bonus +$'+ST.goSalary+'!</span>');}
+  else if(space.type==='freeparking'&&ST.freeParking&&jackpot>0){log(p.token+' <span class="lg">'+p.name+' wins jackpot: $'+jackpot+'!</span>');addM(pi,jackpot);jackpot=0;}
+  else if(['property','railroad','utility'].includes(space.type))hPL(pi,pos,space);
+  renderH();checkBankrupt(pi);updateUI();
+}
+
+function hPL(pi,pos,space){
+  const prop=PR[pos];if(!prop)return;
+  if(prop.mortgaged){log(space.name+' mortgaged — no rent.');return;}
+  if(prop.owner===-1){
+    if(PL[pi].ai){if(aiShouldBuy(pi,pos,space)){addM(pi,-space.price);prop.owner=pi;stats.propsBought[pi]++;log(PL[pi].token+' <span class="lg">AI buys '+space.name+' for $'+space.price+'.</span>');renderH();}return;}
+    showModal('🏛️ '+space.name,'<b>Price:</b> $'+space.price+'<br><b>Balance:</b> $'+PL[pi].money,makePRC(pos,space),
+      [{l:'BUY $'+space.price,p:true,cb:()=>{if(PL[pi].money>=space.price){addM(pi,-space.price);prop.owner=pi;stats.propsBought[pi]++;sfxBuy();log(PL[pi].token+' <span class="lg">'+PL[pi].name+' buys '+space.name+'!</span>');renderH();renderOwn();renderNW();}else log('<span class="lr">Not enough!</span>');}},
+       {l:'DECLINE',p:false,cb:()=>{if(ST.auction)runAuction(pos,space,pi);else log(PL[pi].name+' declines.');}}]);
+  }else if(prop.owner!==pi){
+    if(ST.noJailRent&&PL[prop.owner].inJail){log(PL[prop.owner].name+' jailed — no rent.');return;}
+    const rent=calcRent(pos,space,prop);addM(pi,-rent);addM(prop.owner,rent);
+    stats.rentPaid[pi]=(stats.rentPaid[pi]||0)+rent;
+    sfxRent();
+    log(PL[pi].token+' <span class="lr">'+PL[pi].name+' pays $'+rent+' rent to '+PL[prop.owner].name+'.</span>');
+    renderNW();
+    checkBankrupt(pi);
+  }else log(PL[pi].name+' owns '+space.name+'.');
+}
+
+function runAuction(pos,space,skip){
+  let hb=0,win=-1;
+  PL.forEach((p,i)=>{if(i===skip||p.bankrupt)return;const bid=Math.floor(space.price*(0.5+Math.random()*.6));if(bid>hb&&bid<=p.money){hb=bid;win=i;}});
+  if(win>=0){addM(win,-hb);PR[pos].owner=win;stats.propsBought[win]++;log('<span class="lg">AUCTION: '+PL[win].name+' wins '+space.name+' for $'+hb+'!</span>');renderH();renderOwn();}
+  else log('No bids for '+space.name+'.');
+}
+
+function calcRent(pos,space,prop){
+  if(space.type==='railroad'){const owned=Object.entries(PR).filter(([i,p])=>SP[i].type==='railroad'&&p.owner===prop.owner).length;return 25*Math.pow(2,owned-1);}
+  if(space.type==='utility'){const owned=Object.entries(PR).filter(([i,p])=>SP[i].type==='utility'&&p.owner===prop.owner).length;return owned===2?(lastDice[0]+lastDice[1])*10:(lastDice[0]+lastDice[1])*4;}
+  const grp=GROUPS[space.color];const gSz=GS[space.group];
+  const ownG=Object.entries(PR).filter(([i,p])=>SP[i].type==='property'&&SP[i].group===space.group&&p.owner===prop.owner&&!PR[i].mortgaged).length;
+  if(prop.houses===0)return ownG===gSz?grp.rent[0]*2:grp.rent[0];
+  return grp.rent[Math.min(prop.houses+1,grp.rent.length-1)];
+}
+
+function payTax(pi,space){addM(pi,-space.amount);if(ST.freeParking)jackpot+=space.amount;log(PL[pi].token+' <span class="lr">'+PL[pi].name+' pays '+space.name+': $'+space.amount+'</span>');}
+
+function drawCard(pi,type){
+  const deck=type==='chance'?CC:MC;const card=deck[Math.floor(Math.random()*deck.length)];
+  const res=card.act(pi);
+  if(!PL[pi].ai)showModal(type==='chance'?'CHANCE ❓':'COMMUNITY 📜',card.text,[{l:'OK',p:true,cb:()=>{}}]);
+  log(PL[pi].token+' <span class="lg">'+type.toUpperCase()+':</span> '+res);
+  allSprites();renderPL();renderH();renderOwn();
+}
+
+function gJail(pi){PL[pi].position=10;PL[pi].inJail=true;PL[pi].jailTurns=0;posSprite(pi);sfxJail();log(PL[pi].token+' <span class="lr">'+PL[pi].name+' goes to Jail!</span>');}
+function addM(pi,amt){PL[pi].money+=amt;}
+
+function checkBankrupt(pi){
+  const p=PL[pi];if(p.money>=0||p.bankrupt)return;
+  // Step 1: auto-sell houses first
+  Object.entries(PR).forEach(([i,pr])=>{
+    if(pr.owner===pi&&pr.houses>0){
+      const val=Math.floor(SP[i].houseCost*pr.houses*0.5);
+      p.money+=val;pr.houses=0;
+    }
+  });
+  // Step 2: auto-mortgage unmortgaged properties
+  const own=Object.entries(PR).filter(([i,pr])=>pr.owner===pi&&!pr.mortgaged&&pr.houses===0);
+  own.forEach(([i,pr])=>{pr.mortgaged=true;p.money+=SP[i].mortgage||30;});
+  if(p.money>=0){log('<span class="lg">'+p.name+' sells buildings & mortgages to survive.</span>');renderH();renderNW();return;}
+  // Step 3: bankrupt — run auction on all their properties
+  p.bankrupt=true;
+  const theirProps=Object.entries(PR).filter(([,pr])=>pr.owner===pi);
+  if(theirProps.length>0){
+    log(p.token+' <span class="lr">'+p.name+' is BANKRUPT! Assets go to auction.</span>');
+    theirProps.forEach(([i,pr])=>{
+      pr.owner=-1;pr.houses=0;pr.mortgaged=false;
+      // Quick AI auction for bankrupt properties
+      let hb=Math.floor(SP[i].price*0.4),win=-1;
+      PL.forEach((op,oi)=>{if(oi===pi||op.bankrupt)return;const bid=Math.floor(SP[i].price*(0.45+Math.random()*0.45));if(bid>hb&&bid<=op.money){hb=bid;win=oi;}});
+      if(win>=0){addM(win,-hb);pr.owner=win;log('<span class="lg">Auction: '+PL[win].name+' wins '+SP[i].name+' for $'+hb+'</span>');}
+    });
+  } else {
+    log(p.token+' <span class="lr">'+p.name+' is BANKRUPT!</span>');
+  }
+  document.getElementById('sp-'+pi)?.remove();renderPL();renderH();renderOwn();renderNW();checkWin();
+}
+
+// ═══ BUILD / MORTGAGE / UNMORTGAGE ═══
+function canBuild(pi){
+  for(let g=0;g<8;g++){const gSz=GS[g];const all=Object.entries(PR).filter(([i])=>SP[i].type==='property'&&SP[i].group===g);const own=all.filter(([i,pr])=>pr.owner===pi&&!pr.mortgaged);if(own.length===gSz&&own.some(([,pr])=>pr.houses<5))return true;}
+  return false;
+}
+function promptBuild(){
+  const opts=[];for(let g=0;g<8;g++){const gSz=GS[g];const all=Object.entries(PR).filter(([i])=>SP[i].type==='property'&&SP[i].group===g);const own=all.filter(([i,pr])=>pr.owner===CP&&!pr.mortgaged);if(own.length===gSz)own.forEach(([idx,pr])=>{if(pr.houses<5)opts.push({idx:parseInt(idx),pr,space:SP[parseInt(idx)]});});}
+  if(!opts.length){log('No eligible properties.');return;}
+  const btns=opts.map(o=>({l:o.space.name+' ('+( o.pr.houses<ST.maxHouses?'🏠':'🏨')+' $'+o.space.houseCost+')',p:true,cb:()=>{if(PL[CP].money<o.space.houseCost){log('<span class="lr">Not enough!</span>');return;}o.pr.houses<ST.maxHouses?o.pr.houses++:(o.pr.houses=5);addM(CP,-o.space.houseCost);log('<span class="lg">Built on '+o.space.name+'. Houses: '+o.pr.houses+'</span>');renderH();updateUI();}}));
+  btns.push({l:'CANCEL',p:false,cb:()=>{}});showModal('🏠 BUILD','Balance: <b>$'+PL[CP].money+'</b>',btns);
+}
+function promptMort(){
+  const own=Object.entries(PR).filter(([i,pr])=>pr.owner===CP&&!pr.mortgaged&&pr.houses===0);
+  if(!own.length){log('No properties to mortgage.');return;}
+  const btns=own.map(([idx,pr])=>{const s=SP[parseInt(idx)];return{l:s.name+' → +$'+s.mortgage,p:true,cb:()=>{pr.mortgaged=true;addM(CP,s.mortgage);log('<span class="lg">Mortgaged '+s.name+' for $'+s.mortgage+'.</span>');renderH();updateUI();}};});
+  btns.push({l:'CANCEL',p:false,cb:()=>{}});showModal('📜 MORTGAGE','Select property to mortgage:',btns);
+}
+function promptUnmort(){
+  const own=Object.entries(PR).filter(([i,pr])=>pr.owner===CP&&pr.mortgaged);
+  if(!own.length){log('No mortgaged properties.');return;}
+  const btns=own.map(([idx,pr])=>{const s=SP[parseInt(idx)];const cost=Math.floor(s.mortgage*1.1);return{l:s.name+' — Pay $'+cost,p:true,cb:()=>{if(PL[CP].money<cost){log('<span class="lr">Not enough!</span>');return;}pr.mortgaged=false;addM(CP,-cost);log('<span class="lg">Unmortgaged '+s.name+'.</span>');renderH();updateUI();}};});
+  btns.push({l:'CANCEL',p:false,cb:()=>{}});showModal('🔓 UNMORTGAGE','Redeem mortgaged properties (10% fee):',btns);
+}
+
+// ═══ TRADE ═══
+function promptTrade(){
+  const alive=PL.filter((p,i)=>!p.bankrupt&&i!==CP);
+  if(!alive.length){log('No one to trade with.');return;}
+  const btns=alive.map(p=>{const i=PL.indexOf(p);return{l:'Trade with '+p.token+' '+p.name,p:true,cb:()=>openTradeUI(i)};});
+  btns.push({l:'CANCEL',p:false,cb:()=>{}});showModal('🤝 TRADE','Select a player to trade with:',btns);
+}
+
+function openTradeUI(ti){
+  const me=PL[CP],them=PL[ti];
+  const myP=Object.entries(PR).filter(([i,pr])=>pr.owner===CP&&!pr.mortgaged&&pr.houses===0);
+  const thP=Object.entries(PR).filter(([i,pr])=>pr.owner===ti&&!pr.mortgaged&&pr.houses===0);
+  window._TS={mySel:new Set(),thSel:new Set()};
+
+  function bList(props,prefix){
+    if(!props.length)return'<div style="font-size:.64rem;color:rgba(245,234,208,.3);padding:4px 0">No tradeable properties</div>';
+    return props.map(([idx])=>{const s=SP[parseInt(idx)];const cd=s.type==='property'?'<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+(GROUPS[s.color]?.color||'#888')+';margin-right:3px;"></span>':'';return'<div class="titem" id="'+prefix+'-'+idx+'" onclick="tSel(\''+prefix+'\','+idx+')"><div class="tchk" id="'+prefix+'-c-'+idx+'"></div><div class="tiname">'+cd+s.name+'</div></div>';}).join('');
+  }
+
+  const extra=document.createElement('div');
+  extra.innerHTML='<div class="tgrid"><div class="tcol"><div class="tctitle">📤 YOU OFFER ('+me.name+')</div><div id="tr-my">'+bList(myP,'my')+'</div><input class="minp" type="number" min="0" max="'+me.money+'" placeholder="$0 cash from you" id="tr-mc"></div><div class="tcol"><div class="tctitle">📥 YOU GET ('+them.name+')</div><div id="tr-th">'+bList(thP,'th')+'</div><input class="minp" type="number" min="0" max="'+them.money+'" placeholder="$0 cash from them" id="tr-tc"></div></div>';
+
+  showModal('🤝 TRADE OFFER','<b>'+me.name+'</b> ↔ <b>'+them.name+'</b>',
+    [{l:'SEND OFFER',p:true,cb:()=>execTrade(ti)},{l:'CANCEL',p:false,cb:()=>{}}]);
+  document.getElementById('mX').appendChild(extra);
+}
+
+window.tSel=function(prefix,idx){
+  const set=prefix==='my'?window._TS.mySel:window._TS.thSel;
+  const chk=document.getElementById(prefix+'-c-'+idx);const item=document.getElementById(prefix+'-'+idx);
+  if(set.has(idx)){set.delete(idx);chk.classList.remove('on');chk.textContent='';item.classList.remove('sel');}
+  else{set.add(idx);chk.classList.add('on');chk.textContent='✓';item.classList.add('sel');}
+};
+
+function execTrade(ti){
+  const ts=window._TS;
+  const mc=+(document.getElementById('tr-mc')?.value||0);
+  const tc=+(document.getElementById('tr-tc')?.value||0);
+  const me=PL[CP],them=PL[ti];
+  if(mc>me.money){showModal('❌ TRADE FAILED','You don\'t have $'+mc+' to offer.',[{l:'OK',p:false,cb:()=>{}}]);return;}
+  if(tc>them.money){showModal('❌ TRADE FAILED',them.name+' doesn\'t have $'+tc+'.',[{l:'OK',p:false,cb:()=>{}}]);return;}
+  if(ts.mySel.size===0&&ts.thSel.size===0&&mc===0&&tc===0){log('<span class="lr">Empty trade offer.</span>');return;}
+  const mn=[...ts.mySel].map(i=>SP[i].name).join(', ')||'nothing';
+  const tn=[...ts.thSel].map(i=>SP[i].name).join(', ')||'nothing';
+  const cashStr=(mc>0?' +$'+mc:'')+((tc>0?' for $'+tc:''));
+  // If trading with a human, show them a counter-offer screen
+  if(!them.ai){
+    showModal('🤝 TRADE OFFER',
+      '<b>'+me.name+'</b> offers you:<br><b>'+mn+'</b>'+cashStr+'<br><br>In exchange for:<br><b>'+tn+'</b><br><br>Do you accept?',
+      [{l:'✅ ACCEPT',p:true,cb:()=>{
+        ts.mySel.forEach(idx=>{PR[idx].owner=ti;});
+        ts.thSel.forEach(idx=>{PR[idx].owner=CP;});
+        me.money+=tc-mc;them.money+=mc-tc;
+        sfxBuy();
+        log('<span class="lg">✅ TRADE DONE: '+me.name+' ↔ '+them.name+' | ['+mn+']+$'+mc+' ↔ ['+tn+']+$'+tc+'</span>');
+        renderH();renderPL();renderOwn();renderNW();updateUI();
+      }},
+      {l:'❌ DECLINE',p:false,cb:()=>log(them.name+' declined the trade.')},
+      {l:'💬 COUNTER',p:false,cb:()=>openTradeUI(ti)}]);
+  } else {
+    // AI accepts if favorable
+    const thVal=[...ts.thSel].reduce((s,i)=>s+(SP[i].price||0),0)+tc;
+    const myVal=[...ts.mySel].reduce((s,i)=>s+(SP[i].price||0),0)+mc;
+    const accepts=thVal>=myVal*0.85;
+    if(accepts){
+      ts.mySel.forEach(idx=>{PR[idx].owner=ti;});
+      ts.thSel.forEach(idx=>{PR[idx].owner=CP;});
+      me.money+=tc-mc;them.money+=mc-tc;
+      sfxBuy();
+      log('<span class="lg">🤖 '+them.name+' ACCEPTS trade: ['+mn+'] ↔ ['+tn+']</span>');
+    } else {
+      log('<span class="lr">🤖 '+them.name+' REJECTS trade offer.</span>');
+    }
+    renderH();renderPL();renderOwn();renderNW();updateUI();
+  }
+}
+
+// ═══ AI ═══
+function aiShouldBuy(pi,pos,space){
+  const p=PL[pi],tier=p.aiTier||'balanced';
+  const reserve=tier==='conservative'?600:tier==='aggressive'?100:300;
+  if(p.money-space.price<reserve)return false;
+  if(tier==='aggressive')return true;
+  if(tier==='conservative')return space.price<=200;
+  const grpOwned=Object.entries(PR).filter(([i,pr])=>SP[i].type==='property'&&SP[i].group===space.group&&pr.owner===pi).length;
+  return grpOwned>0||space.price<=220;
+}
+function aiTurn(){
+  if(!PL[CP]?.ai||!gameActive)return;
+  const p=PL[CP],tier=p.aiTier||'balanced';
+  // Try to unmortgage cheap properties first
+  if(tier!=='conservative'){
+    Object.entries(PR).forEach(([i,pr])=>{
+      if(pr.owner===CP&&pr.mortgaged){
+        const cost=Math.floor(SP[i].mortgage*1.1);
+        if(p.money-cost>400){pr.mortgaged=false;addM(CP,-cost);log(p.token+' <span class="lg">AI unmortgages '+SP[i].name+'</span>');}
+      }
+    });
+  }
+  // Build houses on monopolies
+  if(canBuild(CP)){
+    for(let g=0;g<8;g++){
+      const gSz=GS[g];
+      const all=Object.entries(PR).filter(([i])=>SP[i].type==='property'&&SP[i].group===g);
+      const own=all.filter(([i,pr])=>pr.owner===CP&&!pr.mortgaged);
+      if(own.length===gSz){
+        own.forEach(([idx,pr])=>{
+          const cost=SP[parseInt(idx)].houseCost;
+          const buildThreshold=tier==='aggressive'?200:tier==='conservative'?600:400;
+          if(pr.houses<(tier==='conservative'?2:5)&&p.money-cost>buildThreshold){
+            pr.houses=Math.min(pr.houses+1,5);
+            addM(CP,-cost);
+            renderH();
+          }
+        });
+      }
+    }
+  }
+  setTimeout(()=>{rollDice();setTimeout(()=>{if(hasRolled)endTurn();},1600);},550);
+}
+
+// ═══ END TURN ═══
+function endTurn(){
+  stopTimer();
+  hasRolled=false;dblCount=0;
+  do{CP=(CP+1)%numPlayers;}while(PL[CP].bankrupt);
+  if(CP===0){turnNum++;checkEvent();if(turnNum%3===0)autoSave();}
+  updateUI();log('—— <span class="lg">'+PL[CP].name+'\'s turn</span> (T'+turnNum+') ——');
+  if(PL[CP].ai){setTimeout(()=>{aiConsiderTrade();aiTurn();},600);}
+  else showHandoff(CP,()=>{startTimer();});
+}
+
+// ═══ WIN ═══
+function checkWin(){
+  const alive=PL.filter(p=>!p.bankrupt);
+  if(alive.length===1){
+    stopTimer();
+    const w=alive[0],wi=PL.indexOf(w);
+    const props=Object.values(PR).filter(pr=>pr.owner===wi).length;
+    const monops=countMonopolies(wi);
+    document.getElementById('wTitle').textContent=w.token+' '+w.name+' WINS!';
+    document.getElementById('wSub').textContent='After '+turnNum+' turns — the nation is yours!';
+    document.getElementById('wStats').innerHTML=
+      '<div class="wst"><div class="wstv">$'+w.money.toLocaleString()+'</div><div class="wstl">CASH</div></div>'+
+      '<div class="wst"><div class="wstv">$'+nw(wi).toLocaleString()+'</div><div class="wstl">NET WORTH</div></div>'+
+      '<div class="wst"><div class="wstv">'+props+'</div><div class="wstl">PROPERTIES</div></div>'+
+      '<div class="wst"><div class="wstv">'+monops+'</div><div class="wstl">MONOPOLIES</div></div>'+
+      '<div class="wst"><div class="wstv">'+turnNum+'</div><div class="wstl">TURNS</div></div>';
+    const chart=document.getElementById('wChart');
+    chart.innerHTML='';
+    // Rent paid chart
+    const maxR=Math.max(...stats.rentPaid,1);
+    const rentTitle=document.createElement('div');
+    rentTitle.style.cssText='font-family:\'Space Mono\',monospace;font-size:.6rem;color:var(--mid);letter-spacing:.12em;margin-bottom:5px;text-align:center;';
+    rentTitle.textContent='TOTAL RENT PAID';
+    chart.appendChild(rentTitle);
+    PL.forEach((p,i)=>{
+      const row=document.createElement('div');row.className='chrow';
+      row.innerHTML='<div class="chlbl">'+p.token+' '+p.name.slice(0,7)+'</div><div class="chbw"><div class="chb" style="width:'+((stats.rentPaid[i]/maxR)*100).toFixed(1)+'%;background:'+p.color+'"><span class="chbv">$'+stats.rentPaid[i].toLocaleString()+'</span></div></div>';
+      chart.appendChild(row);
+    });
+    // Net worth final chart
+    const nwTitle=document.createElement('div');
+    nwTitle.style.cssText='font-family:\'Space Mono\',monospace;font-size:.6rem;color:var(--mid);letter-spacing:.12em;margin:8px 0 5px;text-align:center;';
+    nwTitle.textContent='FINAL NET WORTH';
+    chart.appendChild(nwTitle);
+    const maxNW=Math.max(...PL.map((_,i)=>nw(i)),1);
+    PL.forEach((p,i)=>{
+      const row=document.createElement('div');row.className='chrow';
+      row.innerHTML='<div class="chlbl">'+p.token+' '+p.name.slice(0,7)+'</div><div class="chbw"><div class="chb" style="width:'+((nw(i)/maxNW)*100).toFixed(1)+'%;background:'+p.color+(p.bankrupt?';opacity:.3':'')+'"><span class="chbv">$'+(nw(i)/1000).toFixed(1)+'k</span></div></div>';
+      chart.appendChild(row);
+    });
+    document.getElementById('winScreen').style.display='flex';
+    localStorage.removeItem('polycialSave');sfxWin();launchConfetti();
+  }
+}
+function showScoreboard(){
+  const rows=PL.map((p,i)=>'<tr style="opacity:'+(p.bankrupt?.35:1)+'"><td>'+p.token+'</td><td style="text-align:left;padding:0 8px">'+p.name+'</td><td>$'+p.money.toLocaleString()+'</td><td>$'+nw(i).toLocaleString()+'</td><td>'+Object.values(PR).filter(pr=>pr.owner===i).length+'</td></tr>').join('');
+  showModal('📊 SCOREBOARD','<table style="width:100%;font-size:.74rem;border-collapse:collapse"><tr style="color:var(--accent);font-family:\'Space Mono\',monospace;font-size:.62rem"><th></th><th style="text-align:left;padding:0 8px">NAME</th><th>CASH</th><th>NET WORTH</th><th>PROPS</th></tr>'+rows+'</table>',[{l:'CLOSE',p:false,cb:()=>{}}]);
+}
+
+// ═══ MID-GAME STATS ═══
+function showMidStats(){
+  const rows=PL.map((p,i)=>{
+    const netW=nw(i);const props=Object.values(PR).filter(pr=>pr.owner===i).length;
+    const monopolies=countMonopolies(i);
+    return`<tr style="opacity:${p.bankrupt?.3:1}">
+      <td>${p.token}</td>
+      <td style="text-align:left;padding:0 6px;font-family:'Space Mono',monospace;font-size:.68rem">${p.name}${p.bankrupt?' ✕':''}</td>
+      <td>$${p.money.toLocaleString()}</td>
+      <td>$${netW.toLocaleString()}</td>
+      <td>${props}</td>
+      <td>${monopolies}</td>
+      <td>$${(stats.rentPaid[i]||0).toLocaleString()}</td>
+    </tr>`;
+  }).join('');
+  const maxNW=Math.max(...PL.map((_,i)=>nw(i)),1);
+  const bars=PL.map((p,i)=>`<div class="chrow"><div class="chlbl">${p.token} ${p.name.slice(0,7)}</div><div class="chbw"><div class="chb" style="width:${((nw(i)/maxNW)*100).toFixed(1)}%;background:${p.color}"><span class="chbv">$${(nw(i)/1000).toFixed(1)}k</span></div></div></div>`).join('');
+  showModal('📊 STATS — TURN '+turnNum,
+    `<table style="width:100%;font-size:.68rem;border-collapse:collapse;margin-bottom:10px">
+      <tr style="color:var(--accent);font-family:'Space Mono',monospace;font-size:.58rem">
+        <th></th><th style="text-align:left;padding:0 6px">NAME</th><th>CASH</th><th>NET WORTH</th><th>🏠</th><th>🏆</th><th>RENT PAID</th>
+      </tr>${rows}
+    </table>
+    <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--mid);letter-spacing:.12em;margin-bottom:5px;text-align:center">NET WORTH</div>
+    ${bars}`,
+    [{l:'CLOSE',p:false,cb:()=>{}}]);
+}
+function countMonopolies(pi){
+  let count=0;
+  for(let g=0;g<8;g++){const gSz=GS[g];const all=Object.entries(PR).filter(([i])=>SP[i].type==='property'&&SP[i].group===g);if(all.length&&all.every(([,pr])=>pr.owner===pi&&!pr.mortgaged))count++;}
+  return count;
+}
+function saveGame(){
+  const save={PL,PR,CP,hasRolled,dblCount,jackpot,lastDice,turnNum,ST,numPlayers,pCfg,stats,nextEventAt,savedAt:Date.now()};
+  localStorage.setItem('polycialSave',JSON.stringify(save));
+  log('<span class="lg">💾 Game saved.</span>');
+  // Flash save button
+  const btn=document.querySelector('.hbtn');if(btn){btn.textContent='✓ SAVED';setTimeout(()=>btn.textContent='💾 SAVE',1200);}
+}
+function autoSave(){if(gameActive)saveGame();}
+function loadSaved(){
+  const raw=localStorage.getItem('polycialSave');if(!raw)return;
+  try{
+    const sv=JSON.parse(raw);
+    Object.assign(ST,sv.ST||{});numPlayers=sv.numPlayers||3;pCfg=sv.pCfg||pCfg;
+    PL=sv.PL;Object.keys(PR).forEach(k=>delete PR[k]);Object.assign(PR,sv.PR);
+    CP=sv.CP||0;hasRolled=sv.hasRolled||false;dblCount=sv.dblCount||0;
+    jackpot=sv.jackpot||0;lastDice=sv.lastDice||[1,1];turnNum=sv.turnNum||1;
+    stats=sv.stats||{rentPaid:Array(numPlayers).fill(0),goCount:Array(numPlayers).fill(0),propsBought:Array(numPlayers).fill(0)};
+    nextEventAt=sv.nextEventAt||5;
+    gameActive=true;
+    document.getElementById('startScreen').classList.add('hidden');
+    const gs=document.getElementById('gameScreen');gs.style.display='flex';gs.style.flexDirection='column';gs.style.alignItems='center';
+    document.getElementById('fpDisp').style.display=ST.freeParking?'block':'none';
+    document.getElementById('timerWrap').style.display=ST.turnTimer?'flex':'none';
+    buildBoard();buildSprites();renderH();renderPL();updateUI();renderOwn();renderNW();applyTheme();
+    const ago=sv.savedAt?Math.round((Date.now()-sv.savedAt)/60000):0;
+    log('<span class="lg">💾 Resumed from Turn '+turnNum+(ago>0?' (saved '+ago+'m ago)':'')+'. </span>');
+    if(PL[CP].ai)setTimeout(aiTurn,700);else startTimer();
+  }catch(e){log('<span class="lr">Failed to load save: '+e.message+'</span>');}
+}
+function checkSave(){const raw=localStorage.getItem('polycialSave');const b=document.getElementById('saveBadge');if(b){if(raw){b.style.display='flex';try{const sv=JSON.parse(raw);const ago=sv.savedAt?Math.round((Date.now()-sv.savedAt)/60000):0;b.textContent='💾 Resume Turn '+sv.turnNum+' ('+(ago<1?'just now':ago+'m ago')+') — tap to continue';}catch(e){}}else b.style.display='none';}}
+
+// ═══ MODAL ═══
+function showModal(title,body,propCardOrBtns,btnsOrUndef){
+  // Overloaded: showModal(t,b,btns) or showModal(t,b,propcard,btns)
+  let propCard=null,buttons;
+  if(Array.isArray(propCardOrBtns)){buttons=propCardOrBtns;}
+  else{propCard=propCardOrBtns;buttons=btnsOrUndef;}
+  document.getElementById('mT').innerHTML=title;document.getElementById('mB').innerHTML=body;
+  document.getElementById('mC').innerHTML='';document.getElementById('mX').innerHTML='';
+  if(propCard)document.getElementById('mC').appendChild(propCard);
+  const c=document.getElementById('mBs');c.innerHTML='';
+  buttons.forEach((b,i)=>{const btn=document.createElement('button');btn.className='mbtn '+(b.p?'p':'s');btn.textContent=b.l;btn.onclick=()=>{closeModal();b.cb();};c.appendChild(btn);});
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+
+function showSpInfo(idx){
+  const space=SP[idx],prop=PR[idx];
+  if(!prop){showModal((space.icon||'🏛️')+' '+space.name,spDesc(space),[{l:'CLOSE',p:false,cb:()=>{}}]);return;}
+  const ow=prop.owner>=0?PL[prop.owner].token+' '+PL[prop.owner].name:'Available';
+  const rent=prop.owner>=0?calcRent(idx,space,prop):'—';
+  const btns=[{l:'CLOSE',p:false,cb:()=>{}}];
+  // If it's the current player's property and they've rolled, offer quick actions
+  if(gameActive&&hasRolled&&prop.owner===CP&&!prop.mortgaged&&prop.houses===0&&space.type==='property'){
+    btns.unshift({l:'📜 MORTGAGE +$'+space.mortgage,p:false,cb:()=>{prop.mortgaged=true;addM(CP,space.mortgage);log('<span class="lg">Mortgaged '+space.name+'.</span>');renderH();updateUI();}});
+  }
+  if(gameActive&&hasRolled&&prop.owner===CP&&prop.mortgaged){
+    const cost=Math.floor(space.mortgage*1.1);
+    btns.unshift({l:'🔓 UNMORTGAGE -$'+cost,p:false,cb:()=>{if(PL[CP].money<cost){log('<span class="lr">Not enough!</span>');return;}prop.mortgaged=false;addM(CP,-cost);log('<span class="lg">Unmortgaged '+space.name+'.</span>');renderH();updateUI();}});
+  }
+  if(gameActive&&!hasRolled&&prop.owner===-1&&PL[CP]&&!PL[CP].bankrupt){
+    // Can't buy outside of landing, but show price reminder
+  }
+  let details='<b>Owner:</b> '+ow+'<br><b>Houses:</b> '+prop.houses+'/5<br><b>Mortgaged:</b> '+(prop.mortgaged?'Yes':'No')+'<br><b>Rent:</b> $'+rent;
+  if(space.type==='railroad'){details+='<br><div style="font-size:.72rem;margin-top:4px;color:rgba(245,234,208,.6)">25/50/100/200 for 1-4 railroads</div>';}
+  if(space.type==='utility'){details+='<br><div style="font-size:.72rem;margin-top:4px;color:rgba(245,234,208,.6)">4× or 10× dice if both owned</div>';}
+  showModal(space.name,details,makePRC(idx,space),btns);
+}
+function showPlInfo(pi){
+  const p=PL[pi];
+  const ownedEntries=Object.entries(PR).filter(([,pr])=>pr.owner===pi);
+  const ownedNames=ownedEntries.map(([i])=>{
+    const s=SP[i];const pr=PR[i];
+    const dot=s.type==='property'?`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${GROUPS[s.color]?.color||'#888'};margin-right:3px;vertical-align:middle"></span>`:'🚂 ';
+    return dot+s.name+(pr.mortgaged?' <span style="color:#e07060;font-size:.65em">[M]</span>':'')+(pr.houses>0?' <span style="color:#6ef0a0;font-size:.65em">['+pr.houses+(pr.houses===5?'H':'🏠')+']</span>':'');
+  }).join('<br>')||'<span style="opacity:.4">None</span>';
+  showModal(p.token+' '+p.name,
+    `<div style="text-align:left;font-size:.8rem;line-height:1.9;color:var(--ink)">
+      <b>Cash:</b> $${p.money.toLocaleString()}<br>
+      <b>Net Worth:</b> $${nw(pi).toLocaleString()}<br>
+      <b>Monopolies:</b> ${countMonopolies(pi)}<br>
+      <b>Rent Paid:</b> $${(stats.rentPaid[pi]||0).toLocaleString()}<br>
+      <b>GO Passes:</b> ${stats.goCount[pi]||0}<br>
+      <b>Properties (${ownedEntries.length}):</b><br>
+      <div style="margin-top:4px;font-size:.72rem;line-height:1.8">${ownedNames}</div>
+    </div>`,
+    [{l:'CLOSE',p:false,cb:()=>{}}]);
+}
+function spDesc(s){const m={go:'Collect $'+ST.goSalary+' each pass!',jail:'Just visiting.',freeparking:ST.freeParking?'🌳 Jackpot here!':'Rest. Nothing happens.',gotojail:'Go directly to Jail.',tax:'Pay $'+s.amount+'.',chance:'Draw a Chance card.',community:'Draw a Community card.'};return m[s.type]||s.name;}
+
+function makePRC(idx,space){
+  if(space.type!=='property')return null;
+  const grp=GROUPS[space.color];const div=document.createElement('div');div.className='prc';
+  const rows=['Base Rent','Monopoly','1 House','2 Houses','3 Houses','4 Houses','Hotel'];
+  const rs=rows.map((r,i)=>'<div class="prr '+(i===0?'b':'')+'"><span>'+r+'</span><span>$'+grp.rent[i]+'</span></div>').join('');
+  div.innerHTML='<div class="prch" style="background:'+grp.color+'">'+space.name+'</div><div class="prcb"><div class="prr b"><span>Price</span><span>$'+space.price+'</span></div><hr class="prd"><div style="font-size:.58rem;color:#6a5020">RENT</div>'+rs+'<hr class="prd"><div class="prr"><span>House</span><span>$'+space.houseCost+'</span></div><div class="prr"><span>Mortgage</span><span>$'+space.mortgage+'</span></div></div>';
+  return div;
+}
+
+// ═══ LOG ═══
+function log(msg){const el=document.getElementById('log');const e=document.createElement('div');e.className='le';e.innerHTML=msg;el.insertBefore(e,el.firstChild);if(el.children.length>60)el.removeChild(el.lastChild);}
+
+// ═══ CONFETTI ═══
+function launchConfetti(){
+  const s=document.createElement('style');s.textContent='@keyframes cF{to{transform:translateY(105vh) rotate(720deg);opacity:0}}';document.head.appendChild(s);
+  for(let i=0;i<110;i++){const c=document.createElement('div');c.className='conf';c.style.cssText='left:'+Math.random()*100+'vw;top:-12px;width:'+(5+Math.random()*9)+'px;height:'+(5+Math.random()*9)+'px;background:hsl('+Math.random()*360+',90%,65%);border-radius:'+(Math.random()>.5?'50%':'2px')+';animation:cF '+(1.8+Math.random()*2.2)+'s linear '+(Math.random()*2)+'s forwards;';document.body.appendChild(c);setTimeout(()=>c.remove(),5500);}
+}
+
+// ═══ SOUND ═══
+let soundOn=true;let _actx=null;
+function getACtx(){if(!_actx)_actx=new(window.AudioContext||window.webkitAudioContext)();return _actx;}
+function playTone(freq,dur,type='sine',vol=0.18){if(!soundOn)return;try{const a=getACtx();const o=a.createOscillator();const g=a.createGain();o.connect(g);g.connect(a.destination);o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(vol,a.currentTime);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+dur);o.start();o.stop(a.currentTime+dur);}catch(e){}}
+function sfxDice(){playTone(220,0.06,'square',0.12);setTimeout(()=>playTone(330,0.06,'square',0.12),80);}
+function sfxMove(){playTone(440,0.08,'sine',0.1);}
+function sfxBuy(){playTone(523,0.1,'sine',0.15);setTimeout(()=>playTone(659,0.15,'sine',0.15),110);}
+function sfxRent(){playTone(200,0.12,'sawtooth',0.1);}
+function sfxJail(){playTone(150,0.25,'square',0.18);setTimeout(()=>playTone(100,0.3,'square',0.18),200);}
+function sfxGo(){playTone(523,0.08);setTimeout(()=>playTone(659,0.08),90);setTimeout(()=>playTone(784,0.18),180);}
+function sfxWin(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,0.25,'sine',0.22),i*160));}
+function sfxEvent(){playTone(330,0.1,'triangle',0.15);setTimeout(()=>playTone(440,0.1,'triangle',0.15),120);setTimeout(()=>playTone(550,0.18,'triangle',0.15),240);}
+function toggleSound(){soundOn=!soundOn;document.getElementById('soundBtn').textContent=soundOn?'🔊':'🔇';}
+
+// ═══ TURN TIMER ═══
+let _timerInt=null,_timerSec=0;
+function startTimer(){
+  clearInterval(_timerInt);if(!ST.turnTimer)return;
+  _timerSec=ST.turnTimer;
+  document.getElementById('timerWrap').style.display='flex';
+  _timerInt=setInterval(()=>{
+    _timerSec--;
+    const pct=(_timerSec/ST.turnTimer)*100;
+    const bar=document.getElementById('timerBar');
+    bar.style.width=Math.max(0,pct)+'%';
+    bar.className='timer-bar'+(pct<25?' warn':'');
+    document.getElementById('timerLbl').textContent=_timerSec;
+    if(_timerSec<=0){clearInterval(_timerInt);if(hasRolled){log('<span class="lr">⏰ Time up! Turn ends.</span>');endTurn();}else{log('<span class="lr">⏰ Time up! Auto-rolling.</span>');rollDice();}}
+  },1000);
+}
+function stopTimer(){clearInterval(_timerInt);document.getElementById('timerBar').style.width='100%';document.getElementById('timerLbl').textContent=ST.turnTimer||'';}
+
+// ═══ NET-WORTH CHART ═══
+function renderNW(){
+  const chart=document.getElementById('nwChart');if(!chart)return;
+  chart.innerHTML='';
+  const vals=PL.map((_,i)=>nw(i));const mx=Math.max(...vals,1);
+  PL.forEach((p,i)=>{
+    const row=document.createElement('div');row.className='nw-row';
+    row.innerHTML=`<div class="nw-lbl">${p.token} ${p.name.slice(0,6)}</div><div class="nw-bg"><div class="nw-fill" style="width:${((vals[i]/mx)*100).toFixed(1)}%;background:${p.color}"><span class="nw-val">$${(vals[i]/1000).toFixed(1)}k</span></div></div>`;
+    chart.appendChild(row);
+  });
+}
+
+// ═══ PASS & PLAY HANDOFF ═══
+let _handoffCb=null;
+function showHandoff(playerIdx,cb){
+  if(!ST.passAndPlay||PL[playerIdx].ai){cb();return;}
+  _handoffCb=cb;
+  const p=PL[playerIdx];
+  document.getElementById('hoToken').textContent=p.token;
+  document.getElementById('hoTitle').textContent=p.name.toUpperCase()+"'S TURN";
+  document.getElementById('hoSub').textContent='Hand the device to '+p.name;
+  document.getElementById('handoffScreen').classList.add('show');
+}
+function dismissHandoff(){document.getElementById('handoffScreen').classList.remove('show');if(_handoffCb){const cb=_handoffCb;_handoffCb=null;cb();}}
+
+// ═══ POLITICAL EVENTS ═══
+function checkEvent(){
+  if(turnNum<nextEventAt)return;
+  nextEventAt=turnNum+Math.floor(3+Math.random()*4);
+  const ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];
+  const res=ev.act();sfxEvent();
+  log('🗞️ <span style="color:#d0a0f0;font-weight:600">EVENT:</span> '+res);
+  if(!PL[CP].ai)showModal('🗞️ POLITICAL EVENT','<div class="evcard"><div class="evcard-title">'+ev.title+'</div><div class="evcard-body">'+ev.body+'</div></div>',[{l:'UNDERSTOOD',p:true,cb:()=>{}}]);
+  renderPL();renderNW();
+}
+
+// ═══ BOARD HOVER HIGHLIGHTS ═══
+function highlightOwned(pi,on){
+  Object.entries(PR).forEach(([idx,pr])=>{
+    if(pr.owner===pi){const c=document.getElementById('cell-'+idx);if(c)c.classList.toggle('owned-by-hover',on);}
+  });
+}
+function highlightCurrentOwned(){
+  document.querySelectorAll('.owned-by-current').forEach(c=>c.classList.remove('owned-by-current'));
+  Object.entries(PR).forEach(([idx,pr])=>{
+    if(pr.owner===CP){const c=document.getElementById('cell-'+idx);if(c)c.classList.add('owned-by-current');}
+  });
+}
+
+// ═══ AI TRADE OFFER ═══
+function aiConsiderTrade(){
+  const p=PL[CP];if(!p.ai||p.bankrupt)return;
+  // Aggressive AI tries to complete a color group
+  for(let g=0;g<8;g++){
+    const gSz=GS[g];
+    const allG=Object.entries(PR).filter(([i])=>SP[i].type==='property'&&SP[i].group===g);
+    const myG=allG.filter(([,pr])=>pr.owner===CP);
+    if(myG.length===gSz-1){// missing 1 for monopoly
+      const missing=allG.find(([,pr])=>pr.owner!==CP&&pr.owner>=0&&!PL[pr.owner].bankrupt);
+      if(missing){
+        const[mIdx,mPr]=missing;const ti=mPr.owner;const wantSpace=SP[parseInt(mIdx)];
+        const offer=Math.min(p.money-200,Math.floor(wantSpace.price*1.4));
+        if(offer>0&&!PL[ti].ai){
+          log(`${p.token} <span class="lg">AI ${p.name} offers $${offer} for ${wantSpace.name}!</span>`);
+          if(!PL[ti].ai)showModal('🤖 AI TRADE OFFER',`<b>${p.name}</b> offers you <b>$${offer}</b> for <b>${wantSpace.name}</b>.`,[
+            {l:'ACCEPT',p:true,cb:()=>{mPr.owner=CP;addM(CP,-offer);addM(ti,offer);log(`<span class="lg">Trade accepted! ${wantSpace.name} → ${p.name}</span>`);renderH();renderPL();renderOwn();renderNW();}},
+            {l:'DECLINE',p:false,cb:()=>log(`${PL[ti].name} declines AI offer.`)}
+          ]);
+          return;
+        }
+      }
+    }
+  }
+}
+
+// ═══ INIT ═══
+renderPRows();checkSave();
+window.addEventListener('resize',()=>{if(gameActive)allSprites();});
+</script>
+</body>
+</html>
