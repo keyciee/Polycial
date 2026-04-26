@@ -1136,16 +1136,17 @@ function updateUI(){
   document.getElementById('tName').textContent=p.name+(p.ai?' 🤖':'');
   document.getElementById('tStat').textContent=p.inJail?'Jailed — Roll or Pay':(hasRolled?'Action / End turn':'Roll the dice');
   document.getElementById('tctr').textContent='Turn '+turnNum;
-  document.getElementById('rollBtn').disabled=hasRolled;
-  document.getElementById('endBtn').style.display=hasRolled?'':'none';
-  document.getElementById('bailBtn').style.display=(p.inJail&&!hasRolled&&(p.money>=50||p.jailCards>0))?'':'none';
-  document.getElementById('buildBtn').style.display=(hasRolled&&canBuild(CP))?'':'none';
+  const isAI=PL[CP].ai;
+  document.getElementById('rollBtn').disabled=hasRolled||isAI;
+  document.getElementById('endBtn').style.display=(hasRolled&&!isAI)?'':'none';
+  document.getElementById('bailBtn').style.display=(p.inJail&&!hasRolled&&!isAI&&(p.money>=50||p.jailCards>0))?'':'none';
+  document.getElementById('buildBtn').style.display=(hasRolled&&!isAI&&canBuild(CP))?'':'none';
   const hm=Object.entries(PR).some(([i,pr])=>pr.owner===CP&&!pr.mortgaged&&pr.houses===0);
-  document.getElementById('mortBtn').style.display=(hasRolled&&hm)?'':'none';
+  document.getElementById('mortBtn').style.display=(hasRolled&&!isAI&&hm)?'':'none';
   const hu=Object.entries(PR).some(([i,pr])=>pr.owner===CP&&pr.mortgaged);
-  document.getElementById('unmortBtn').style.display=(hasRolled&&hu)?'':'none';
+  document.getElementById('unmortBtn').style.display=(hasRolled&&!isAI&&hu)?'':'none';
   const hp=Object.values(PR).some(pr=>pr.owner===CP);
-  document.getElementById('tradeBtn').style.display=(hasRolled&&hp&&numPlayers>1)?'':'none';
+  document.getElementById('tradeBtn').style.display=(hasRolled&&!isAI&&hp&&numPlayers>1)?'':'none';
   if(ST.freeParking)document.getElementById('jpAmt').textContent='$'+jackpot;
   renderPL();renderOwn();renderNW();highlightCurrentOwned();
 }
