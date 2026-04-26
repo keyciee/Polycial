@@ -753,7 +753,20 @@ body {
 <!-- START -->
 <div class="screen" id="startScreen">
   <div class="start-inner">
-    <div class="crest">⚜</div>
+    <div class="crest">
+  <svg width="38" height="38" viewBox="0 0 38 38" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="24" width="32" height="5" rx="1"/>
+    <rect x="7" y="17" width="3" height="7"/><rect x="12" y="17" width="3" height="7"/>
+    <rect x="17" y="17" width="3" height="7"/><rect x="22" y="17" width="3" height="7"/>
+    <rect x="27" y="17" width="3" height="7"/>
+    <rect x="5" y="15" width="28" height="3" rx="1"/>
+    <rect x="9" y="8" width="20" height="8" rx="1"/>
+    <path d="M9 8 Q19 0 29 8 Z"/>
+    <rect x="16" y="3" width="6" height="4" rx="1"/>
+    <line x1="19" y1="0" x2="19" y2="3" stroke="white" stroke-width="1.2"/>
+    <polygon points="19,0 26,2.5 19,5" opacity="0.75"/>
+  </svg>
+</div>
     <div class="game-title">POLYCIAL</div>
     <div class="game-tagline">ACQUIRE LAND · WIELD POWER · DOMINATE THE NATION</div>
     <div class="divs"></div>
@@ -772,7 +785,7 @@ body {
       <button class="btn-start" onclick="startGame()">▶ BEGIN SESSION</button>
       <button class="btn-ol" onclick="showSettings()">⚙ SETTINGS</button>
     </div>
-    <div class="ver">POLYCIAL v4.0 · POLITICAL PROPERTY GAME</div>
+    <div class="ver">POLYCIAL v1.0 · POLITICAL PROPERTY GAME</div>
   </div>
 </div>
 
@@ -805,7 +818,22 @@ body {
 <!-- GAME -->
 <div id="gameScreen">
   <div class="ghdr">
-    <div class="glogo"><div class="glogo-mark">P</div>POLYCIAL</div>
+    <div class="glogo">
+  <div class="glogo-mark">
+    <svg width="16" height="16" viewBox="0 0 22 22" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="14" width="14" height="2.5" rx="0.5"/>
+      <rect x="5.5" y="10.5" width="1.2" height="3.5"/><rect x="8" y="10.5" width="1.2" height="3.5"/>
+      <rect x="10.4" y="10.5" width="1.2" height="3.5"/><rect x="12.8" y="10.5" width="1.2" height="3.5"/>
+      <rect x="15.3" y="10.5" width="1.2" height="3.5"/>
+      <rect x="4.5" y="9.5" width="13" height="1.5" rx="0.4"/>
+      <path d="M6.5 9.5 Q11 3.5 15.5 9.5 Z"/>
+      <rect x="10.2" y="5.5" width="1.6" height="2" rx="0.3"/>
+      <line x1="11" y1="3.5" x2="11" y2="5.5" stroke="white" stroke-width="0.6"/>
+      <polygon points="11,3.5 14,4.5 11,5.5" opacity="0.7"/>
+    </svg>
+  </div>
+  POLYCIAL
+</div>
     <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--sub);letter-spacing:.15em;flex:1;text-align:center;">v4 · POLITICAL PROPERTY</div>
     <div class="hbtns">
       <button class="hbtn" onclick="saveGame()">💾 SAVE</button>
